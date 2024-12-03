@@ -240,6 +240,11 @@ var tinyMapEditor = (function() {
 				tiles[row] = tilesRow;
 			}
 		},
+		
+		convertToOptimizedTileMap : function(img, options) {
+			const quant = new RgbQuantSMS(options);
+			return quant.convert(img);
+		},
 
         outputJSON : function() {
 			this.prepareMapStructure();
