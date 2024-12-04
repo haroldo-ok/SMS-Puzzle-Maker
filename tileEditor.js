@@ -14,6 +14,7 @@ var tinyMapEditor = (function() {
         tileZoom = 1,
         srcTile = 0,
         sprite = new Image(),
+		tileSetForSms,
 		tileSetName,
 		mapName,
 		mapId,
@@ -32,7 +33,8 @@ var tinyMapEditor = (function() {
         tileSizeInput = getById('tileSize'),
 		tileZoomInput = getById('tileZoom');
 		
-	const STORAGE_PREFIX = 'TinyMapEditor.';
+	const APP_NAME = 'SMS-Puzzle-Maker';
+	const STORAGE_PREFIX = APP_NAME + '.';
 	const storage = {
 		get: k => {
 			const json = localStorage[STORAGE_PREFIX + k];
@@ -240,6 +242,18 @@ var tinyMapEditor = (function() {
 				tiles[row] = tilesRow;
 			}
 		},
+		
+		convertToOptimizedTileMap : function(img, options) {
+			const quant = new RgbQuantSMS(options);
+			return quant.convert(img);
+		},
+
+		convertToUnoptimizedTileMap : function(img, options) {
+			const quant = new RgbQuantSMS(options);
+			quant.sample(img);
+			quant.palettes();
+			return quant.reduceToTileMap(img);
+		},
 
         outputJSON : function() {
 			this.prepareMapStructure();
@@ -248,8 +262,8 @@ var tinyMapEditor = (function() {
 			
 			const project = {
 				tool: {
-					name: 'TinyMapEditor',
-					version: '0.8.0',
+					name: APP_NAME,
+					version: '0.9.0',
 					format: '0.1.0'
 				},
 				options: {
@@ -261,21 +275,22 @@ var tinyMapEditor = (function() {
 				maps: maps.listAll(),
 				tileSet: {
 					name: tileSetName,
-					src: sprite.src
+					src: sprite.src,
+					forMasterSystem: tileSetForSms
 				}
 			};
 					
             const output = neatJSON(project, { afterColon: 1, afterComma: 1, objectPadding: 1 });
 			
 			var blob = new Blob([output], { type: 'application/json' });
-			saveAs(blob, "TinyMapEditor.project.json");
+			saveAs(blob, APP_NAME + '.project.json');
         },
 		
 		inputJSON: function(json) {
 			const project = JSON.parse(json);
 			
-			if (!project || !project.tool || project.tool.name !== 'TinyMapEditor') {
-				throw new Error('This does not seem to be a TinyMapEditor JSON project.');
+			if (!project || !project.tool || project.tool.name !== APP_NAME) {
+				throw new Error('This does not seem to be a ' + APP_NAME + ' JSON project.');
 			}
 			
 			if (project.tool.format !== '0.1.0') {
@@ -366,7 +381,14 @@ var tinyMapEditor = (function() {
                 pal.canvas.height = this.height;
 				pal.canvas.style.zoom = tileZoom;
                 pal.drawImage(this, 0, 0);
+				tileSetForSms = _this.convertToUnoptimizedTileMap(pal.canvas);
 				
+				storage.put('tileSet', {					
+					name: tileSetName,
+					src: sprite.src,
+					forMasterSystem: tileSetForSms
+				});
+
 				_this.loadMap();
             }, false);
 
@@ -394,11 +416,7 @@ var tinyMapEditor = (function() {
 				const fr = new FileReader();
 				fr.onload = function () {
 					tileSetName = file.name;
-					sprite.src = fr.result;
-					storage.put('tileSet', {
-						name: tileSetName,
-						src: sprite.src
-					});
+					sprite.src = fr.result;					
 				}
 				fr.readAsDataURL(file);
 			 });
@@ -441,6 +459,7 @@ var tinyMapEditor = (function() {
 			
 			const storedTileSet = storage.get('tileSet');
 			tileSetName = storedTileSet && storedTileSet.name || 'Unnamed';
+			tileSetForSms = storedTileSet && storedTileSet.forMasterSystem;
 			sprite.src = storedTileSet && storedTileSet.src || 'assets/tilemap_32a.png';
 			
             map.canvas.width = width * tileSize;
