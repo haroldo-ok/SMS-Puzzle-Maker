@@ -246,6 +246,13 @@ var tinyMapEditor = (function() {
 			return quant.convert(img);
 		},
 
+		convertToUnoptimizedTileMap : function(img, options) {
+			const quant = new RgbQuantSMS(options);
+			quant.sample(img);
+			quant.palettes();
+			return quant.reduceToTileMap(img);
+		},
+
         outputJSON : function() {
 			this.prepareMapStructure();
 			mapId = maps.upsert(this.getMapObject());
