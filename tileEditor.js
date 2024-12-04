@@ -33,7 +33,8 @@ var tinyMapEditor = (function() {
         tileSizeInput = getById('tileSize'),
 		tileZoomInput = getById('tileZoom');
 		
-	const STORAGE_PREFIX = 'TinyMapEditor.';
+	const APP_NAME = 'SMS-Puzzle-Maker';
+	const STORAGE_PREFIX = APP_NAME + '.';
 	const storage = {
 		get: k => {
 			const json = localStorage[STORAGE_PREFIX + k];
@@ -261,7 +262,7 @@ var tinyMapEditor = (function() {
 			
 			const project = {
 				tool: {
-					name: 'TinyMapEditor',
+					name: APP_NAME,
 					version: '0.8.0',
 					format: '0.1.0'
 				},
@@ -282,14 +283,14 @@ var tinyMapEditor = (function() {
             const output = neatJSON(project, { afterColon: 1, afterComma: 1, objectPadding: 1 });
 			
 			var blob = new Blob([output], { type: 'application/json' });
-			saveAs(blob, "TinyMapEditor.project.json");
+			saveAs(blob, APP_NAME + '.project.json');
         },
 		
 		inputJSON: function(json) {
 			const project = JSON.parse(json);
 			
-			if (!project || !project.tool || project.tool.name !== 'TinyMapEditor') {
-				throw new Error('This does not seem to be a TinyMapEditor JSON project.');
+			if (!project || !project.tool || project.tool.name !== APP_NAME) {
+				throw new Error('This does not seem to be a ' + APP_NAME + ' JSON project.');
 			}
 			
 			if (project.tool.format !== '0.1.0') {
