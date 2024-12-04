@@ -14,6 +14,7 @@ var tinyMapEditor = (function() {
         tileZoom = 1,
         srcTile = 0,
         sprite = new Image(),
+		tileSetForSms,
 		tileSetName,
 		mapName,
 		mapId,
@@ -273,7 +274,8 @@ var tinyMapEditor = (function() {
 				maps: maps.listAll(),
 				tileSet: {
 					name: tileSetName,
-					src: sprite.src
+					src: sprite.src,
+					forMasterSystem: tileSetForSms
 				}
 			};
 					
@@ -378,7 +380,14 @@ var tinyMapEditor = (function() {
                 pal.canvas.height = this.height;
 				pal.canvas.style.zoom = tileZoom;
                 pal.drawImage(this, 0, 0);
+				tileSetForSms = _this.convertToUnoptimizedTileMap(pal.canvas);
 				
+				storage.put('tileSet', {					
+					name: tileSetName,
+					src: sprite.src,
+					forMasterSystem: tileSetForSms
+				});
+
 				_this.loadMap();
             }, false);
 
@@ -406,11 +415,7 @@ var tinyMapEditor = (function() {
 				const fr = new FileReader();
 				fr.onload = function () {
 					tileSetName = file.name;
-					sprite.src = fr.result;
-					storage.put('tileSet', {
-						name: tileSetName,
-						src: sprite.src
-					});
+					sprite.src = fr.result;					
 				}
 				fr.readAsDataURL(file);
 			 });
@@ -453,6 +458,7 @@ var tinyMapEditor = (function() {
 			
 			const storedTileSet = storage.get('tileSet');
 			tileSetName = storedTileSet && storedTileSet.name || 'Unnamed';
+			tileSetForSms = storedTileSet && storedTileSet.forMasterSystem;
 			sprite.src = storedTileSet && storedTileSet.src || 'assets/tilemap_32a.png';
 			
             map.canvas.width = width * tileSize;
