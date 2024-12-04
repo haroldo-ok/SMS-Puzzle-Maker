@@ -378,7 +378,7 @@ var tinyMapEditor = (function() {
 			const project = {
 				tool: {
 					name: APP_NAME,
-					version: '0.9.0',
+					version: '0.10.0',
 					format: '0.1.0'
 				},
 				options: {
