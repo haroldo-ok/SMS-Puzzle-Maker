@@ -18,7 +18,7 @@ var tinyMapEditor = (function() {
 		tileSetName,
 		mapName,
 		mapId,
-        tiles, // used for demo, not *really* needed atm
+        tiles,
         alpha,
 
         player,
@@ -31,7 +31,11 @@ var tinyMapEditor = (function() {
 		widthInput = getById('width'),
         heightInput = getById('height'),
         tileSizeInput = getById('tileSize'),
-		tileZoomInput = getById('tileZoom');
+		tileZoomInput = getById('tileZoom'),
+		
+        addMap = getById('addMap'),
+        deleteMap = getById('deleteMap'),
+		mapList = getById('mapList');
 		
 	const APP_NAME = 'SMS-Puzzle-Maker';
 	const STORAGE_PREFIX = APP_NAME + '.';
@@ -53,33 +57,53 @@ var tinyMapEditor = (function() {
 			storage.put('maps', this.data || []);
 		},
 		
+		replaceAll: function(data) {
+			this.data = data;
+			this.saveAll();
+		},
+		
 		listAll: function() {
 			return this.data;
 		},
 		
+		findById: function(id) {
+			return this.data.find(m => m.id === id);
+		},
+		
 		upsert: function(map) {
-			const {id, ...remaining} = map;
+			const { id, name, ...remaining } = map;
 			const mapIds = this.data.map(m => m.id);
+			
 			let usedId = id;
+			
+			const prepareMap = (id) => {
+				return { 
+					id, 
+					name: name || ('Unnamed ' + id),
+					...remaining
+				};
+			};
 			
 			if (id < 1) {
 				// Map with no ID: create ID and append
 				const maxId = mapIds.length ? Math.max(...mapIds) : 0;
 				usedId = maxId + 1;
-				this.data.push({
-					id: usedId,
-					...remaining
-				});						
+				this.data.push(prepareMap(usedId));						
 			} else if (mapIds.includes(id)) {
 				// Map with existing ID: replace it.
-				this.data = this.data.map(existingMap => existingMap.id === id ? map : existingMap);
+				this.data = this.data.map(existingMap => existingMap.id === id ? prepareMap(id) : existingMap);
 			} else {
 				// Map with non-existing ID: append
-				this.data.push(map);
+				this.data.push(prepareMap(id));
 			}
 			
 			this.saveAll();
 			return usedId;
+		},
+		
+		deleteById: function(id) {
+			this.data = this.data.filter(m => m.id !== id);
+			this.saveAll();
 		}
 	};
 
@@ -109,15 +133,15 @@ var tinyMapEditor = (function() {
         setTile : function(e) {
 			const destTile = this.getTile(e);
 			
-			this.setTileByCoord(destTile.col, destTile.row, srcTile);
+			this.setTileByCoord(destTile.col, destTile.row, srcTile, map);
 			this.setTileIndex(destTile.col, destTile.row, srcTile.tileIndex);
 			
 			this.saveMap();
         },
 		
-		setTileByCoord : function(destCol, destRow, srcTile) {
-			map.clearRect(destCol * tileSize, destRow * tileSize, tileSize, tileSize);
-			map.drawImage(sprite, srcTile.col * tileSize, srcTile.row * tileSize, tileSize, tileSize, destCol * tileSize, destRow * tileSize, tileSize, tileSize);
+		setTileByCoord : function(destCol, destRow, srcTile, ctx) {
+			ctx.clearRect(destCol * tileSize, destRow * tileSize, tileSize, tileSize);
+			ctx.drawImage(sprite, srcTile.col * tileSize, srcTile.row * tileSize, tileSize, tileSize, destCol * tileSize, destRow * tileSize, tileSize, tileSize);
 		},
 		
 		setTileIndex : function(col, row, tileIndex) {
@@ -147,15 +171,91 @@ var tinyMapEditor = (function() {
             srcTile ? ctx.drawImage(sprite, srcTile.col * tileSize, srcTile.row * tileSize, tileSize, tileSize, 0, 0, tileSize, tileSize) : eraser();
 			selectedTileIndex.innerHTML = srcTile ? srcTile.tileIndex : 'None';
         },
+		
+		drawMapList: function() {
+			mapList.innerHTML = maps.listAll()
+				.map(({ name, id, tileIndexes }) => {
+					return '<p><label>' +
+						`<input type="radio" name="selectedMap" value="${id}" ${id === mapId ? 'checked' : ''} />` + 
+						name +
+						`<image class="thumbnail loading" data-tme-tile="${JSON.stringify(tileIndexes)}" />` +
+					'</label></p>';
+				})
+				.join('\n');
+				
+			this.generateThumbnails();
+		},
+		
+		generateThumbnails: function() {
+			[...document.querySelectorAll("#mapList .thumbnail")].forEach(thumbnail => {
+				window.setTimeout(() => {
+					const tileIndexes = JSON.parse(thumbnail.dataset.tmeTile);
+					
+					const canvas = document.createElement('canvas');
+					canvas.width = width * tileSize;
+					canvas.height = height * tileSize;
+					
+					this.prepareMapTiles(tileIndexes);
+					this.loadMapIntoContext(tileIndexes, canvas.getContext('2d'));
+					
+					thumbnail.src = canvas.toDataURL();
+				}, 0);
+			});
+		},
+			
+		addNewMap: function(e) {
+			this.saveCurrentMapToMapList();
+			
+			mapId = 0;			
+			mapNameInput.value = '';
+			this.clearMap(e);
+			
+			this.saveCurrentMapToMapList();
+			this.loadMap();
+		},
+		
+		deleteCurrentMap: function(e) {
+			if (!confirm(`This will delete the map called\n"${mapName}"\nAre you sure you want to delete it?`)) return;
+			
+			try {
+				if (maps.listAll().length < 2) throw Error("Sorry, this is the last remaining map, and can't be deleted.");
+				
+				maps.deleteById(mapId);
+				this.selectMapById(maps.listAll()[0].id);
+				this.drawMapList();				
+			} catch (e) {
+				const prefix = 'Error while deleting the map';
+				console.error(prefix, e);
+				alert(prefix + ': ' + e);
+			}
+		},
+		
+		selectMap: function(e) {
+			const target = e.target || e.srcElement;
+			if (target.name !== 'selectedMap') return;
+			
+			this.saveCurrentMapToMapList();
+
+			const selectedId = parseInt(target.value);
+			this.selectMapById(selectedId);
+		},
+		
+		selectMapById: function(selectedId) {			
+			const selectedMap = maps.findById(selectedId);
+			if (!selectedMap) throw new Error("Couldn't find map with ID = " + target.value);
+			
+			storage.put('map', selectedMap);
+			this.loadMap();
+		},
 
         eraseTile : function(e) {		
 			const destTile = this.getTile(e);
 			this.eraseTileByCoord(destTile.col, destTile.row);
 			this.setTileIndex(destTile.col, destTile.row, 0);
-        },
+        },		
 
-        eraseTileByCoord : function(col, row) {		
-			map.clearRect(col * tileSize, row * tileSize, tileSize, tileSize);
+        eraseTileByCoord : function(col, row, ctx) {		
+			ctx.clearRect(col * tileSize, row * tileSize, tileSize, tileSize);
 		},
 		
         drawMap : function() {
@@ -169,27 +269,33 @@ var tinyMapEditor = (function() {
         },
 		
         loadMap : function() {
-			const map = storage.get('map');
-			if (!map) return;
+			const currentMap = storage.get('map');
+			if (!currentMap) return;
 			
-			tiles = map.tileIndexes;
+			tiles = currentMap.tileIndexes;
 			this.prepareMapStructure();
 
+			this.loadMapIntoContext(tiles, map);
+
+			mapId = currentMap.id || 0;
+			mapName = currentMap.name || '';
+			mapNameInput.value = mapName;
+			
+			this.drawMapList();
+		},
+		
+		loadMapIntoContext(tileIndexes, ctx) {
 			for (let row = 0; row < height; row++) {
 				for (let col = 0; col < width; col++) {
-					const tileIndex = tiles[row][col];
+					const tileIndex = tileIndexes[row][col];
 					const localSrcTile = this.getSrcTileCoordByIndex(tileIndex);
 					if (localSrcTile) {
-						this.setTileByCoord(col, row, localSrcTile);
+						this.setTileByCoord(col, row, localSrcTile, ctx);
 					} else {
-						this.eraseTileByCoord(col, row);
+						this.eraseTileByCoord(col, row, ctx);
 					}
 				}
 			}
-
-			mapId = map.id || 0;
-			mapName = map.name || 'Unnamed';
-			mapNameInput.value = mapName;
 		},
 		
         saveMap : function() {			
@@ -232,14 +338,18 @@ var tinyMapEditor = (function() {
 		
 		prepareMapStructure : function() {
 			tiles = tiles || [];
-			tiles.length = height;
+			this.prepareMapTiles(tiles);
+		},
+		
+		prepareMapTiles : function(mapTiles) {
+			mapTiles.length = height;
 			for (let row = 0; row < height; row++) {
-				const tilesRow = tiles[row] || [];
+				const tilesRow = mapTiles[row] || [];
 				tilesRow.length = width;
 				for (let col = 0; col < width; col++) {
 					tilesRow[col] = tilesRow[col] || 0;
 				}
-				tiles[row] = tilesRow;
+				mapTiles[row] = tilesRow;
 			}
 		},
 		
@@ -255,10 +365,15 @@ var tinyMapEditor = (function() {
 			return quant.reduceToTileMap(img);
 		},
 
-        outputJSON : function() {
+		saveCurrentMapToMapList : function() {
 			this.prepareMapStructure();
 			mapId = maps.upsert(this.getMapObject());
 			this.saveMap();
+			this.drawMapList();
+		},
+
+        outputJSON : function() {
+			this.saveCurrentMapToMapList();
 			
 			const project = {
 				tool: {
@@ -300,7 +415,9 @@ var tinyMapEditor = (function() {
 			this.loadSizeVariablesFromObject(project.options);
 			this.updateSizeVariables();
 			
-			tiles = project.maps[0].tileIndexes;
+			maps.replaceAll(project.maps);
+			
+			this.selectMapById(project.maps[0].id);
 			this.saveMap();
 			
 			storage.put('tileSet', project.tileSet);
@@ -354,6 +471,14 @@ var tinyMapEditor = (function() {
 				
                 _this.drawTool();
             }, false);
+			
+			/**
+			 * Map list events.
+			 */
+
+			mapList.addEventListener('change', e => _this.selectMap(e));
+			addMap.addEventListener('click', e => _this.addNewMap(e));
+			deleteMap.addEventListener('click', e => _this.deleteCurrentMap(e));
 			
 			/***
 			 * Tile editor events
@@ -467,6 +592,7 @@ var tinyMapEditor = (function() {
 			map.canvas.style.zoom = tileZoom;
 			
             this.drawTool();
+			this.drawMapList();
         },
 
         destroy : function() {
