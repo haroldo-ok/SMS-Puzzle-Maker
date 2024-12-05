@@ -1,5 +1,5 @@
-PRJNAME := chicken_crossing
-OBJS := data.rel actor.rel chicken_crossing.rel
+PRJNAME := puzzle_maker_base_rom
+OBJS := data.rel actor.rel puzzle_maker_base_rom.rel
 
 all: $(PRJNAME).sms
 
