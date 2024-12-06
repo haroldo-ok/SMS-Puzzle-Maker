@@ -1,0 +1,8 @@
+'use strict';
+
+(() => {
+	
+	window.gameResource = {
+	};
+	
+})();

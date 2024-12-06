@@ -35,7 +35,9 @@ var tinyMapEditor = (function() {
 		
         addMap = getById('addMap'),
         deleteMap = getById('deleteMap'),
-		mapList = getById('mapList');
+		mapList = getById('mapList'),
+		
+		generateResource = getById('generateResource');
 		
 	const APP_NAME = 'SMS-Puzzle-Maker';
 	const STORAGE_PREFIX = APP_NAME + '.';
@@ -319,6 +321,11 @@ var tinyMapEditor = (function() {
 			this.drawMap();
         },
 
+        buildGameResource : function(e) {
+			this.outputJSON();
+			this.drawMap();
+        },
+
         sortPartial : function(arr) {
             var len = arr.length,
                 temp = [],
@@ -546,9 +553,9 @@ var tinyMapEditor = (function() {
 				fr.readAsDataURL(file);
 			 });
 			 
-			 /**
-			  * Project file event			
-			  */
+			/**
+			 * Project file event			
+			 */
 			loadProjectInput.addEventListener('change', () => {
 				if (!loadProjectInput.files.length) return;
 				
@@ -567,6 +574,11 @@ var tinyMapEditor = (function() {
 				fr.readAsText(file);
 			 });
 			 
+			/**
+			 * Game resource event
+			 */
+			generateResource.addEventListener('click', e => _this.buildGameResource(e));
+
 			/**
 			 * Map buttons
 			 */
