@@ -23,7 +23,8 @@ data/%.bin: data/map/%.tmx
 
 $(PRJNAME).sms: $(OBJS)
 	sdcc -o $(PRJNAME).ihx -mz80 --no-std-crt0 --data-loc 0xC000 lib/crt0_sms.rel $(OBJS) SMSlib.lib lib/PSGlib.rel
-	ihx2sms $(PRJNAME).ihx $(PRJNAME).sms	
+	ihx2sms $(PRJNAME).ihx $(PRJNAME).sms
+	copy /b $(PRJNAME).sms + data_to_append.txt $(PRJNAME)_patched.sms
 
 clean:
 	rm *.sms *.sav *.asm *.sym *.rel *.noi *.map *.lst *.lk *.ihx data.*
