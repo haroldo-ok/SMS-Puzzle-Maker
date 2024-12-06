@@ -378,11 +378,11 @@ var tinyMapEditor = (function() {
 			this.saveMap();
 			this.drawMapList();
 		},
-
-        outputJSON : function() {
+		
+		generateProjectObject : function() {
 			this.saveCurrentMapToMapList();
 			
-			const project = {
+			return {
 				tool: {
 					name: APP_NAME,
 					version: '0.10.0',
@@ -401,7 +401,10 @@ var tinyMapEditor = (function() {
 					forMasterSystem: tileSetForSms
 				}
 			};
-					
+		},
+		
+        outputJSON : function() {
+			const project = this.generateProjectObject();
             const output = neatJSON(project, { afterColon: 1, afterComma: 1, objectPadding: 1 });
 			
 			var blob = new Blob([output], { type: 'application/json' });
