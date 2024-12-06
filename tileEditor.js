@@ -35,7 +35,9 @@ var tinyMapEditor = (function() {
 		
         addMap = getById('addMap'),
         deleteMap = getById('deleteMap'),
-		mapList = getById('mapList');
+		mapList = getById('mapList'),
+		
+		generateResource = getById('generateResource');
 		
 	const APP_NAME = 'SMS-Puzzle-Maker';
 	const STORAGE_PREFIX = APP_NAME + '.';
@@ -319,6 +321,16 @@ var tinyMapEditor = (function() {
 			this.drawMap();
         },
 
+        buildGameResource : function(e) {
+			const project = this.generateProjectObject();
+			const resource = gameResource.generate(project);
+
+			// TODO: the resource must be in binary format, so it can be appended to the ROM.
+            const output = neatJSON(resource, { afterColon: 1, afterComma: 1, objectPadding: 1 });			
+			var blob = new Blob([output], { type: 'application/json' });
+			saveAs(blob, APP_NAME + '.resource.json');
+        },
+
         sortPartial : function(arr) {
             var len = arr.length,
                 temp = [],
@@ -371,11 +383,11 @@ var tinyMapEditor = (function() {
 			this.saveMap();
 			this.drawMapList();
 		},
-
-        outputJSON : function() {
+		
+		generateProjectObject : function() {
 			this.saveCurrentMapToMapList();
 			
-			const project = {
+			return {
 				tool: {
 					name: APP_NAME,
 					version: '0.10.0',
@@ -394,7 +406,10 @@ var tinyMapEditor = (function() {
 					forMasterSystem: tileSetForSms
 				}
 			};
-					
+		},
+		
+        outputJSON : function() {
+			const project = this.generateProjectObject();
             const output = neatJSON(project, { afterColon: 1, afterComma: 1, objectPadding: 1 });
 			
 			var blob = new Blob([output], { type: 'application/json' });
@@ -506,7 +521,7 @@ var tinyMapEditor = (function() {
                 pal.canvas.height = this.height;
 				pal.canvas.style.zoom = tileZoom;
                 pal.drawImage(this, 0, 0);
-				tileSetForSms = _this.convertToUnoptimizedTileMap(pal.canvas);
+				tileSetForSms = _this.convertToUnoptimizedTileMap(pal.canvas, { colors: 16 });
 				
 				storage.put('tileSet', {					
 					name: tileSetName,
@@ -546,9 +561,9 @@ var tinyMapEditor = (function() {
 				fr.readAsDataURL(file);
 			 });
 			 
-			 /**
-			  * Project file event			
-			  */
+			/**
+			 * Project file event			
+			 */
 			loadProjectInput.addEventListener('change', () => {
 				if (!loadProjectInput.files.length) return;
 				
@@ -567,6 +582,11 @@ var tinyMapEditor = (function() {
 				fr.readAsText(file);
 			 });
 			 
+			/**
+			 * Game resource event
+			 */
+			generateResource.addEventListener('click', e => _this.buildGameResource(e));
+
 			/**
 			 * Map buttons
 			 */
