@@ -521,7 +521,7 @@ var tinyMapEditor = (function() {
                 pal.canvas.height = this.height;
 				pal.canvas.style.zoom = tileZoom;
                 pal.drawImage(this, 0, 0);
-				tileSetForSms = _this.convertToUnoptimizedTileMap(pal.canvas);
+				tileSetForSms = _this.convertToUnoptimizedTileMap(pal.canvas, { colors: 16 });
 				
 				storage.put('tileSet', {					
 					name: tileSetName,
