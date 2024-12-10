@@ -21,10 +21,10 @@ data/%.bin: data/map/%.tmx
 %.rel : %.c
 	sdcc -c -mz80 --peep-file lib/peep-rules.txt $<
 
-$(PRJNAME).sms: $(OBJS)
+$(PRJNAME).sms: $(OBJS) SMS-Puzzle-Maker.resource.bin
 	sdcc -o $(PRJNAME).ihx -mz80 --no-std-crt0 --data-loc 0xC000 lib/crt0_sms.rel $(OBJS) SMSlib.lib lib/PSGlib.rel
 	ihx2sms $(PRJNAME).ihx $(PRJNAME).sms
-	copy /b $(PRJNAME).sms + data_to_append.txt $(PRJNAME)_patched.sms
+	copy /b $(PRJNAME).sms + SMS-Puzzle-Maker.resource.bin $(PRJNAME)_patched.sms
 
 clean:
 	rm *.sms *.sav *.asm *.sym *.rel *.noi *.map *.lst *.lk *.ihx data.*

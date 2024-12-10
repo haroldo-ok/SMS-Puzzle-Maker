@@ -43,14 +43,10 @@ char handle_title() {
 	
 	SMS_setNextTileatXY(3, 16);
 	puts("Press any button to start");
-	
-	SMS_setNextTileatXY(3, 17);
+
 	SMS_mapROMBank(2);
 	char *o = 0x8000;
-	for (char i = 15; i; i--) {
-		putchar(*o);
-		o++;
-	}
+	SMS_loadBGPalette(o);
 	
 	SMS_displayOn();
 	
