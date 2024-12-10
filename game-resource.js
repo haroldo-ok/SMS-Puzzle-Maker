@@ -32,7 +32,11 @@
 				},
 				responseType: 'arraybuffer'
 			})
-			.then(baseROM => new Blob([baseROM, resourceToAppend], { type: 'application/octet-stream' }));
+			.then(response => response.blob())
+			.then(baseROM => {
+				debugger;
+				return new Blob([baseROM, resourceToAppend], { type: 'application/octet-stream' });
+			});
 		}
 		
 	};

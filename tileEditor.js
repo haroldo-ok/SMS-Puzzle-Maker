@@ -331,8 +331,9 @@ var tinyMapEditor = (function() {
 
         buildGameROM : function(e) {
 			const project = this.generateProjectObject();
+			
 			gameResource.generateROM(project)
-				.then(blob => saveAs(blob, APP_NAME + '.sms'));
+			.then(blob => saveAs(blob, APP_NAME + '.sms'));
         },
 
         sortPartial : function(arr) {
