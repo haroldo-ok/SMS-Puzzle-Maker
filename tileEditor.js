@@ -323,12 +323,9 @@ var tinyMapEditor = (function() {
 
         buildGameResource : function(e) {
 			const project = this.generateProjectObject();
-			const resource = gameResource.generate(project);
+			const blob = gameResource.generateBlob(project);
 
-			// TODO: the resource must be in binary format, so it can be appended to the ROM.
-            const output = neatJSON(resource, { afterColon: 1, afterComma: 1, objectPadding: 1 });			
-			var blob = new Blob([output], { type: 'application/json' });
-			saveAs(blob, APP_NAME + '.resource.json');
+			saveAs(blob, APP_NAME + '.resource.bin');
         },
 
         sortPartial : function(arr) {
