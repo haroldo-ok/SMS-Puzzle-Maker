@@ -37,7 +37,8 @@ var tinyMapEditor = (function() {
         deleteMap = getById('deleteMap'),
 		mapList = getById('mapList'),
 		
-		generateResource = getById('generateResource');
+		generateResource = getById('generateResource'),
+		generateROM = getById('generateROM');
 		
 	const APP_NAME = 'SMS-Puzzle-Maker';
 	const STORAGE_PREFIX = APP_NAME + '.';
@@ -323,12 +324,16 @@ var tinyMapEditor = (function() {
 
         buildGameResource : function(e) {
 			const project = this.generateProjectObject();
-			const resource = gameResource.generate(project);
+			const blob = gameResource.generateBlob(project);
 
-			// TODO: the resource must be in binary format, so it can be appended to the ROM.
-            const output = neatJSON(resource, { afterColon: 1, afterComma: 1, objectPadding: 1 });			
-			var blob = new Blob([output], { type: 'application/json' });
-			saveAs(blob, APP_NAME + '.resource.json');
+			saveAs(blob, APP_NAME + '.resource.bin');
+        },
+
+        buildGameROM : function(e) {
+			const project = this.generateProjectObject();
+			
+			gameResource.generateROM(project)
+			.then(blob => saveAs(blob, APP_NAME + '.sms'));
         },
 
         sortPartial : function(arr) {
@@ -586,6 +591,7 @@ var tinyMapEditor = (function() {
 			 * Game resource event
 			 */
 			generateResource.addEventListener('click', e => _this.buildGameResource(e));
+			generateROM.addEventListener('click', e => _this.buildGameROM(e));
 
 			/**
 			 * Map buttons
