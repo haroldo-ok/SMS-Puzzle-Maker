@@ -20,6 +20,19 @@
 			const obj = that.generateObj(project);
 			
 			return new Blob([new Uint8Array(obj.palette)], { type: 'application/octet-stream' });
+		},
+		
+		generateROM: (project) => {
+			const resourceToAppend = that.generateBlob(project);
+			
+			return fetch('base-rom/dist/puzzle_maker_base_rom.sms', {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/octet-stream',
+				},
+				responseType: 'arraybuffer'
+			})
+			.then(baseROM => new Blob([baseROM, resourceToAppend], { type: 'application/octet-stream' }));
 		}
 		
 	};

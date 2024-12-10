@@ -37,7 +37,8 @@ var tinyMapEditor = (function() {
         deleteMap = getById('deleteMap'),
 		mapList = getById('mapList'),
 		
-		generateResource = getById('generateResource');
+		generateResource = getById('generateResource'),
+		generateROM = getById('generateROM');
 		
 	const APP_NAME = 'SMS-Puzzle-Maker';
 	const STORAGE_PREFIX = APP_NAME + '.';
@@ -328,6 +329,12 @@ var tinyMapEditor = (function() {
 			saveAs(blob, APP_NAME + '.resource.bin');
         },
 
+        buildGameROM : function(e) {
+			const project = this.generateProjectObject();
+			gameResource.generateROM(project)
+				.then(blob => saveAs(blob, APP_NAME + '.sms'));
+        },
+
         sortPartial : function(arr) {
             var len = arr.length,
                 temp = [],
@@ -583,6 +590,7 @@ var tinyMapEditor = (function() {
 			 * Game resource event
 			 */
 			generateResource.addEventListener('click', e => _this.buildGameResource(e));
+			generateROM.addEventListener('click', e => _this.buildGameROM(e));
 
 			/**
 			 * Map buttons
