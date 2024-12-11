@@ -11,7 +11,9 @@
 		generateObj: (project) => {
 			const to2bpp = c => c >> 6;
 			
-			const palette = project.tileSet.forMasterSystem.palettes[0]
+			const smsTileSet = project.tileSet.forMasterSystem;
+			
+			const palette = smsTileSet.palettes[0]
 				.map(channels => channels.map(to2bpp))
 				.map(([r, g, b]) => r | g << 2 | b << 4);
 				
@@ -24,9 +26,31 @@
 				});
 			}, [0, 0, 0, 0]);
 				
-			const tileSet = project.tileSet.forMasterSystem.tiles
-				.map(m => m.pixels)
-				.map(tile => tile.map(processTileLine));
+			const processTile = tile => tile.map(processTileLine);
+			const processTileAt = (col, row) => {
+				if (col >= smsTileSet.mapW || row >= smsTileSet.mapH) {
+					return 0;
+				}
+				
+				const tileIndex = (row * smsTileSet.mapW + col) || 0;
+				return processTile(smsTileSet.tiles[tileIndex].pixels);
+			};
+			
+			const tileSetW = Math.ceil(smsTileSet.mapW / 2);
+			const tileSetH = Math.ceil(smsTileSet.mapH / 2);
+			
+			const tileSet = [];
+			for (let tileSetRow = 0; tileSetRow < tileSetH; tileSetRow++) {
+				for (let tileSetCol = 0; tileSetCol < tileSetW; tileSetCol++) {
+					const tileRow = tileSetRow * 2;
+					const tileCol = tileSetCol * 2;
+					
+					tileSet.push(processTileAt(tileCol, tileRow));
+					tileSet.push(processTileAt(tileCol, tileRow + 1));
+					tileSet.push(processTileAt(tileCol + 1, tileRow));
+					tileSet.push(processTileAt(tileCol + 1, tileRow + 1));
+				}
+			}
 				
 			return {
 				palette,
