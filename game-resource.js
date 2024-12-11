@@ -24,9 +24,11 @@
 				});
 			}, [0, 0, 0, 0]);
 				
+			const processTile = tile => tile.map(processTileLine);
+				
 			const tileSet = project.tileSet.forMasterSystem.tiles
 				.map(m => m.pixels)
-				.map(tile => tile.map(processTileLine));
+				.map(processTile);
 				
 			return {
 				palette,
