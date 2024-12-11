@@ -2,6 +2,10 @@
 
 (() => {
 	
+	function padArrayEnd(arr, len, padding){
+	   return arr.concat(Array(len - arr.length).fill(padding));
+	}
+
 	const that = {
 		
 		generateObj: (project) => {
@@ -33,7 +37,10 @@
 		generateBlob: (project) => {
 			const obj = that.generateObj(project);
 			
-			const arrays = [obj.palette, obj.tileSet].map(a => new Uint8Array(a));
+			const arrays = [
+				padArrayEnd(obj.palette, 16, 0), 
+				obj.tileSet
+			].map(a => new Uint8Array(a));
 			
 			return new Blob(arrays, { type: 'application/octet-stream' });
 		},
