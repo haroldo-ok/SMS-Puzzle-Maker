@@ -27,10 +27,20 @@
 			}, [0, 0, 0, 0]);
 				
 			const processTile = tile => tile.map(processTileLine);
-				
-			const tileSet = smsTileSet.tiles
-				.map(m => m.pixels)
-				.map(processTile);
+			
+			const tileSetW = Math.ceil(smsTileSet.mapW / 2);
+			const tileSetH = Math.ceil(smsTileSet.mapH / 2);
+			
+			const tileSet = [];
+			for (let tileSetRow = 0; tileSetRow < tileSetH; tileSetRow++) {
+				for (let tileSetCol = 0; tileSetCol < tileSetW; tileSetCol++) {
+					const tileRow = tileSetRow * 2;
+					const tileCol = tileSetCol * 2;
+					
+					const tileIndex = (tileRow * smsTileSet.mapW + tileCol) || 0;
+					tileSet.push(processTile(smsTileSet.tiles[tileIndex].pixels));
+				}
+			}
 				
 			return {
 				palette,
