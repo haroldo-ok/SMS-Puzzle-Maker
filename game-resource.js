@@ -12,17 +12,13 @@
 				.map(([r, g, b]) => r | g << 2 | b << 4);
 				
 			const processTileLine = line => line.reduce((bitPlanes, pixel, colNum) => {
-				/*
 				const colMask = 0x80 >> colNum;
 				return bitPlanes.map((plane, planeIdx) => {
 					const planeMask = 0x01 << planeIdx;
 					const finalMask = pixel & planeMask ? colMask : 0;
 					return plane | finalMask;
 				});
-				*/
-				const colMask = 0x80 >> colNum;
-				return bitPlanes.map(plane => pixel == 14 ? plane : plane | colMask);
-			}, [0]);
+			}, [0, 0, 0, 0]);
 				
 			const tileSet = project.tileSet.forMasterSystem.tiles
 				.map(m => m.pixels)
@@ -37,8 +33,7 @@
 		generateBlob: (project) => {
 			const obj = that.generateObj(project);
 			
-			//const arrays = [obj.palette, obj.tileSet].map(a => new Uint8Array(a));
-			const arrays = [obj.tileSet].map(a => new Uint8Array(a));
+			const arrays = [obj.palette, obj.tileSet].map(a => new Uint8Array(a));
 			
 			return new Blob(arrays, { type: 'application/octet-stream' });
 		},
