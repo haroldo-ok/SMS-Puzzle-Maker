@@ -41,13 +41,22 @@ char handle_title() {
 	SMS_load1bppTiles(font_1bpp, 352, font_1bpp_size, 0, 1);
 	SMS_configureTextRenderer(352 - 32);
 	
-	SMS_setNextTileatXY(3, 16);
-	puts("Press any button to start");
-
 	SMS_mapROMBank(2);
+	
 	char *o = 0x8000;
 	SMS_loadBGPalette(o);
 	
+	o += 16;
+	SMS_loadTiles(o, 0, 256 * 32);
+
+	SMS_setNextTileatXY(0, 0);
+	for (static unsigned int i = 0; i != 256; i++) {
+		SMS_setTile(i);
+	}
+	
+	SMS_setNextTileatXY(3, 16);
+	puts("Press any button to start");
+
 	SMS_displayOn();
 	
 	// Wait button press
