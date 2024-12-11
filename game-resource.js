@@ -11,15 +11,29 @@
 				.map(channels => channels.map(to2bpp))
 				.map(([r, g, b]) => r | g << 2 | b << 4);
 				
+			const tileSet = project.tileSet.forMasterSystem.tiles
+				.map(m => m.pixels)
+				.map(line => line.reduce((bitPlanes, pixel, colNum) => {
+					const colMask = 0x80 >> colNum;
+					return bitPlanes.map((plane, planeIdx) => {
+						const planeMask = 0x01 << planeIdx;
+						const finalMask = pixel & planeMask ? colMask : 0;
+						return plane | finalMask;
+					});
+				}, [0, 0, 0, 0]));
+				
 			return {
-				palette
+				palette,
+				tileSet: _.flatten(tileSet)
 			};
 		},
 		
 		generateBlob: (project) => {
 			const obj = that.generateObj(project);
 			
-			return new Blob([new Uint8Array(obj.palette)], { type: 'application/octet-stream' });
+			const arrays = [obj.palette, obj.tileSet].map(a => new Uint8Array(a));
+			
+			return new Blob(arrays, { type: 'application/octet-stream' });
 		},
 		
 		generateROM: (project) => {
@@ -34,7 +48,6 @@
 			})
 			.then(response => response.blob())
 			.then(baseROM => {
-				debugger;
 				return new Blob([baseROM, resourceToAppend], { type: 'application/octet-stream' });
 			});
 		}
