@@ -8,8 +8,8 @@ var tinyMapEditor = (function() {
         map = tileEditor.getContext('2d'),
 		selectedTile = getById('selectedTile'),
 		selectedTileIndex = getById('selectedTileIndex'),
-        width = 10,
-        height = 10,
+        width = 16,
+        height = 9,
         tileSize = 16,
         tileZoom = 1,
         srcTile = 0,
@@ -448,8 +448,8 @@ var tinyMapEditor = (function() {
 		updateSizeVariables : function() {
 			const inputToNumber = el => +el.value || 1;
 			
-			width = inputToNumber(widthInput);
-			height = inputToNumber(heightInput);
+			width = 16;
+			height = 9;
 			tileSize = 16;
 			tileZoom = inputToNumber(tileZoomInput);
 
