@@ -71,6 +71,9 @@ char handle_title() {
 	SMS_loadBGPalette(o);
 	
 	o += 16;
+	unsigned int tileSetSize = *((unsigned int *) o);
+	
+	o += 2;
 	SMS_loadTiles(o, 0, 256 * 32);
 
 	for (char x = 0, y = 4, tile = 0; tile != 64; tile++) {
@@ -85,6 +88,9 @@ char handle_title() {
 	
 	SMS_setNextTileatXY(3, 16);
 	puts("Press any button to start");
+
+	SMS_setNextTileatXY(3, 17);
+	printf("%d", tileSetSize);
 
 	SMS_displayOn();
 	

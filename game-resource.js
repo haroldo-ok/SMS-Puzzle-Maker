@@ -5,6 +5,8 @@
 	function padArrayEnd(arr, len, padding){
 	   return arr.concat(Array(len - arr.length).fill(padding));
 	}
+	
+	const toBytePair = n => [n & 0xFF, (n >> 8) & 0xFF];
 
 	const that = {
 		
@@ -63,6 +65,7 @@
 			
 			const arrays = [
 				padArrayEnd(obj.palette, 16, 0), 
+				toBytePair(obj.tileSet.length),
 				obj.tileSet
 			].map(a => new Uint8Array(a));
 			
