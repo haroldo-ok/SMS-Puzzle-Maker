@@ -73,9 +73,15 @@ char handle_title() {
 	o += 16;
 	SMS_loadTiles(o, 0, 256 * 32);
 
-	draw_tile(0, 4, 0);
-	draw_tile(3, 4, 1);
-	draw_tile(6, 4, 2);
+	for (char x = 0, y = 4, tile = 0; tile != 64; tile++) {
+		draw_tile(x, y, tile);
+		
+		x += 2;
+		if (x > 29) {
+			x = 0;
+			y += 2;
+		}
+	}
 	
 	SMS_setNextTileatXY(3, 16);
 	puts("Press any button to start");
