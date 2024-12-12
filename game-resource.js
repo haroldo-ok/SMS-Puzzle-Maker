@@ -53,10 +53,13 @@
 					tileSet.push(processTileAt(tileCol + 1, tileRow + 1));
 				}
 			}
+			
+			const maps = _.flatten(project.maps[0].tileIndexes);
 				
 			return {
 				palette,
-				tileSet: _.flatten(tileSet)
+				tileSet: _.flatten(tileSet),
+				maps
 			};
 		},
 		
@@ -66,7 +69,9 @@
 			const arrays = [
 				padArrayEnd(obj.palette, 16, 0), 
 				toBytePair(obj.tileSet.length),
-				obj.tileSet
+				obj.tileSet,
+				toBytePair(obj.maps.length),
+				obj.maps
 			].map(a => new Uint8Array(a));
 			
 			return new Blob(arrays, { type: 'application/octet-stream' });
