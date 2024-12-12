@@ -39,16 +39,6 @@ void draw_tile(char x, char y, unsigned int tileNumber) {
 	SMS_setNextTileatXY(x, y + 1);
 	SMS_setTile(sms_tile + 1);
 	SMS_setTile(sms_tile + 3);
-
-	/*
-	SMS_setNextTileatXY(x, y);	
-	SMS_setTile(sms_tile);
-	SMS_setTile(sms_tile + 2);
-
-	SMS_setNextTileatXY(x, y + 1);	
-	SMS_setTile(sms_tile + 1);
-	SMS_setTile(sms_tile + 3);
-	*/
 }
 
 char handle_title() {
@@ -74,15 +64,16 @@ char handle_title() {
 	unsigned int tileSetSize = *((unsigned int *) o);
 	
 	o += 2;
-	SMS_loadTiles(o, 0, 256 * 32);
+	SMS_loadTiles(o, 4, 256 * 32);
 
-	for (char x = 0, y = 4, tile = 0; tile != 64; tile++) {
-		draw_tile(x, y, tile);
-		
-		x += 2;
-		if (x > 29) {
-			x = 0;
-			y += 2;
+	o += tileSetSize;
+	unsigned int mapSize = *((unsigned int *) o);
+	
+	o += 2;	
+	for (char y = 0; y != 9; y++) {
+		for (char x = 0; x != 16; x++) {
+			draw_tile(x << 1, y << 1, *o);
+			o++;
 		}
 	}
 	
@@ -90,7 +81,7 @@ char handle_title() {
 	puts("Press any button to start");
 
 	SMS_setNextTileatXY(3, 17);
-	printf("%d", tileSetSize);
+	printf("%d %d", tileSetSize, mapSize);
 
 	SMS_displayOn();
 	
