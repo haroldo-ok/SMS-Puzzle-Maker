@@ -27,6 +27,30 @@ char handle_gameover() {
 	return STATE_START;
 }
 
+void draw_tile(char x, char y, unsigned int tileNumber) {
+	static unsigned int sms_tile;
+	
+	sms_tile = tileNumber << 2;
+	
+	SMS_setNextTileatXY(x, y);	
+	SMS_setTile(sms_tile);
+	SMS_setTile(sms_tile + 2);
+
+	SMS_setNextTileatXY(x, y + 1);
+	SMS_setTile(sms_tile + 1);
+	SMS_setTile(sms_tile + 3);
+
+	/*
+	SMS_setNextTileatXY(x, y);	
+	SMS_setTile(sms_tile);
+	SMS_setTile(sms_tile + 2);
+
+	SMS_setNextTileatXY(x, y + 1);	
+	SMS_setTile(sms_tile + 1);
+	SMS_setTile(sms_tile + 3);
+	*/
+}
+
 char handle_title() {
 	unsigned int joy = SMS_getKeysStatus();
 
@@ -49,9 +73,14 @@ char handle_title() {
 	o += 16;
 	SMS_loadTiles(o, 0, 256 * 32);
 
-	SMS_setNextTileatXY(0, 0);
-	for (static unsigned int i = 0; i != 256; i++) {
-		SMS_setTile(i);
+	for (char x = 0, y = 4, tile = 0; tile != 64; tile++) {
+		draw_tile(x, y, tile);
+		
+		x += 2;
+		if (x > 29) {
+			x = 0;
+			y += 2;
+		}
 	}
 	
 	SMS_setNextTileatXY(3, 16);
@@ -79,8 +108,6 @@ void main() {
 	
 	SMS_useFirstHalfTilesforSprites(1);
 	SMS_setSpriteMode(SPRITEMODE_TALL);
-	SMS_VDPturnOnFeature(VDPFEATURE_HIDEFIRSTCOL);
-	SMS_VDPturnOnFeature(VDPFEATURE_LOCKHSCROLL);
 	
 	while (1) {
 		switch (state) {
