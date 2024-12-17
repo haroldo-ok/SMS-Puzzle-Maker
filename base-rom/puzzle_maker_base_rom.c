@@ -14,6 +14,14 @@
 #define STATE_GAMEPLAY (2)
 #define STATE_GAMEOVER (3)
 
+#define RESOURCE_BANK (2)
+#define RESOURCE_BASE_ADDR (0x8000 + 0x20A4)
+
+typedef struct resource_header {
+	char signature[4];
+	unsigned int file_count;
+} resource_header;
+
 void load_standard_palettes() {
 	SMS_setBGPaletteColor(0, 0);
 	SMS_setBGPaletteColor(1, 0x3F);
@@ -55,7 +63,7 @@ char handle_title() {
 	SMS_load1bppTiles(font_1bpp, 352, font_1bpp_size, 0, 1);
 	SMS_configureTextRenderer(352 - 32);
 	
-	SMS_mapROMBank(2);
+	SMS_mapROMBank(RESOURCE_BANK);
 	
 	char *o = 0x8000;
 	SMS_loadBGPalette(o);
@@ -76,12 +84,14 @@ char handle_title() {
 			o++;
 		}
 	}
+
+	resource_header	*head = RESOURCE_BASE_ADDR;
 	
 	SMS_setNextTileatXY(3, 16);
 	puts("Press any button to start");
 
 	SMS_setNextTileatXY(3, 17);
-	printf("%d %d", tileSetSize, mapSize);
+	printf("%d %d %s", tileSetSize, mapSize, head->signature);
 
 	SMS_displayOn();
 	
