@@ -32,6 +32,25 @@ typedef struct resource_entry_format {
 const resource_header_format *resource_header = RESOURCE_BASE_ADDR;
 const resource_entry_format *resource_entries = RESOURCE_BASE_ADDR + sizeof(resource_header_format);
 
+resource_entry_format *resource_find(char *name) {
+	SMS_mapROMBank(RESOURCE_BANK);
+
+	// TODO: Implement binary search; the names are already sorted.
+	// Searches sequentially, for now.
+	unsigned int remaining_entries = resource_header->file_count;
+	resource_entry_format *entry = resource_entries;
+	while (remaining_entries) {
+		if (!strcmp(name, entry->name)) {
+			return entry;
+		}
+		
+		entry++;
+		remaining_entries--;
+	}
+	
+	return 0;
+}
+
 void load_standard_palettes() {
 	SMS_setBGPaletteColor(0, 0);
 	SMS_setBGPaletteColor(1, 0x3F);
@@ -99,7 +118,7 @@ char handle_title() {
 	puts("Press any button to start");
 
 	SMS_setNextTileatXY(3, 17);
-	printf("%d %d %s %s", tileSetSize, mapSize, resource_header->signature, resource_entries->name);
+	printf("%d %d %s %s", tileSetSize, mapSize, resource_header->signature, resource_find("main.pal")->name);
 
 	SMS_displayOn();
 	
