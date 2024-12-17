@@ -63,6 +63,20 @@
 			};
 		},
 		
+		generateInternalFiles: (project) => {
+			const obj = that.generateObj(project);
+
+			return {
+				'main.pal': padArrayEnd(obj.palette, 16, 0)
+			};			
+		},
+
+		generateInternalFileSystem: (project) => {
+			const internalFiles = that.generateInternalFiles(project);
+			return Object.keys(internalFiles).sort()
+				.map(fileName => ({ fileName, content: internalFiles[fileName] }));
+		},
+		
 		generateBlob: (project) => {
 			const obj = that.generateObj(project);
 			
@@ -73,6 +87,8 @@
 				toBytePair(obj.maps.length),
 				obj.maps
 			].map(a => new Uint8Array(a));
+			
+			console.log(that.generateInternalFileSystem(project));
 			
 			return new Blob(arrays, { type: 'application/octet-stream' });
 		},
