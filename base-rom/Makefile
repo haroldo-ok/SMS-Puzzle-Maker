@@ -24,6 +24,8 @@ data/%.bin: data/map/%.tmx
 $(PRJNAME).sms: $(OBJS) SMS-Puzzle-Maker.resource.bin
 	sdcc -o $(PRJNAME).ihx -mz80 --no-std-crt0 --data-loc 0xC000 lib/crt0_sms.rel $(OBJS) SMSlib.lib lib/PSGlib.rel
 	ihx2sms $(PRJNAME).ihx $(PRJNAME).sms
+	
+patched: $(PRJNAME).sms
 	copy /b $(PRJNAME).sms + SMS-Puzzle-Maker.resource.bin $(PRJNAME)_patched.sms
 
 clean:
