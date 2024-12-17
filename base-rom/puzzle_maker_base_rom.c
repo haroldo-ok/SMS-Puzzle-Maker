@@ -51,6 +51,16 @@ resource_entry_format *resource_find(char *name) {
 	return 0;
 }
 
+char *resource_get_pointer(resource_entry_format *entry) {
+	SMS_mapROMBank(RESOURCE_BANK);
+	
+	unsigned int page = entry->page;
+	char *p = RESOURCE_BASE_ADDR + entry->offset;
+	
+	SMS_mapROMBank(page);
+	return p;
+}
+
 void load_standard_palettes() {
 	SMS_setBGPaletteColor(0, 0);
 	SMS_setBGPaletteColor(1, 0x3F);
@@ -95,7 +105,7 @@ char handle_title() {
 	SMS_mapROMBank(RESOURCE_BANK);
 	
 	char *o = (char *) 0x8000;
-	SMS_loadBGPalette(o);
+	SMS_loadBGPalette(resource_get_pointer(resource_find("main.pal")));
 	
 	o += 16;
 	unsigned int tileSetSize = *((unsigned int *) o);
@@ -118,7 +128,10 @@ char handle_title() {
 	puts("Press any button to start");
 
 	SMS_setNextTileatXY(3, 17);
-	printf("%d %d %s %s", tileSetSize, mapSize, resource_header->signature, resource_find("main.pal")->name);
+	printf("%d %d %s %s %x", 
+		tileSetSize, mapSize, resource_header->signature, 
+		resource_find("main.pal")->name,
+		resource_get_pointer(resource_find("main.pal")));
 
 	SMS_displayOn();
 	
