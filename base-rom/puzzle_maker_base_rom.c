@@ -15,7 +15,7 @@
 #define STATE_GAMEOVER (3)
 
 #define RESOURCE_BANK (2)
-#define RESOURCE_BASE_ADDR (0x8000 + 0x20A4)
+#define RESOURCE_BASE_ADDR (0x8000)
 
 typedef struct resource_header_format {
 	char signature[4];
@@ -104,19 +104,10 @@ char handle_title() {
 	
 	SMS_mapROMBank(RESOURCE_BANK);
 	
-	char *o = (char *) 0x8000;
 	SMS_loadBGPalette(resource_get_pointer(resource_find("main.pal")));
-	
-	o += 16;
-	unsigned int tileSetSize = *((unsigned int *) o);
-	
-	o += 2;
-	SMS_loadTiles(o, 4, 256 * 32);
+	SMS_loadTiles(resource_get_pointer(resource_find("main.til")), 4, 256 * 32);
 
-	o += tileSetSize;
-	unsigned int mapSize = *((unsigned int *) o);
-	
-	o = resource_get_pointer(resource_find("level001.map"));
+	char *o = resource_get_pointer(resource_find("level001.map"));
 	for (char y = 0; y != 9; y++) {
 		for (char x = 0; x != 16; x++) {
 			draw_tile(x << 1, y << 1, *o);
@@ -126,12 +117,6 @@ char handle_title() {
 
 	SMS_setNextTileatXY(3, 16);
 	puts("Press any button to start");
-
-	SMS_setNextTileatXY(3, 17);
-	printf("%d %s %s %x", 
-		tileSetSize, resource_header->signature, 
-		resource_find("main.pal")->name,
-		resource_get_pointer(resource_find("main.pal")));
 
 	SMS_displayOn();
 	

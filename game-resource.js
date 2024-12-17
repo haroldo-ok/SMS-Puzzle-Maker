@@ -70,6 +70,7 @@
 
 			return {
 				'main.pal': padArrayEnd(obj.palette, 16, 0),
+				'main.til': obj.tileSet,
 				'level001.map': obj.maps
 			};			
 		},
@@ -123,11 +124,6 @@
 			const obj = that.generateObj(project);
 			
 			const arrays = [
-				padArrayEnd(obj.palette, 16, 0), 
-				toBytePair(obj.tileSet.length),
-				obj.tileSet,
-				toBytePair(obj.maps.length),
-				obj.maps,
 				that.generateInternalFileSystem(project)
 			].map(a => new Uint8Array(a));
 			
