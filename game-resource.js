@@ -69,7 +69,8 @@
 			const obj = that.generateObj(project);
 
 			return {
-				'main.pal': padArrayEnd(obj.palette, 16, 0)
+				'main.pal': padArrayEnd(obj.palette, 16, 0),
+				'level001.map': obj.maps
 			};			
 		},
 
