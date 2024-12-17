@@ -6,6 +6,8 @@
 	   return arr.concat(Array(len - arr.length).fill(padding));
 	}
 	
+	const stringToPaddedByteArray = (s, len) => padArrayEnd(s.split('').map(ch => ch.charCodeAt(0)), len, 0);
+	
 	const toBytePair = n => [n & 0xFF, (n >> 8) & 0xFF];
 
 	const that = {
@@ -63,15 +65,66 @@
 			};
 		},
 		
+		generateInternalFiles: (project) => {
+			const obj = that.generateObj(project);
+
+			return {
+				'main.pal': padArrayEnd(obj.palette, 16, 0),
+				'main.til': obj.tileSet,
+				'level001.map': obj.maps
+			};			
+		},
+
+		generateInternalFileSystem: (project) => {
+			const internalFiles = that.generateInternalFiles(project);
+			const fileEntries = Object.keys(internalFiles).sort()
+				.map(fileName => ({ fileName, content: internalFiles[fileName] }));
+				
+			const fileEntryFormat = {
+				name: 14,
+				page: 2,
+				size: 2,
+				offset: 2
+			};
+			
+			const fileEntrySize = Object.values(fileEntryFormat).reduce((acc, n) => acc + n, 0);
+			const fileEntriesSize = fileEntries.length * fileEntrySize;
+			
+			const header = [
+				...stringToPaddedByteArray('rsc', 4),
+				...toBytePair(fileEntries.length)
+			];
+			
+			const fileContentInitialOffset = header.length + fileEntriesSize;
+			
+			let fileContentOffset = fileContentInitialOffset;
+			const fileEntriesTable = fileEntries
+				.map(({ fileName, content }) => {
+					const entry = [
+						...stringToPaddedByteArray(fileName, fileEntryFormat.name),
+						...toBytePair(2), // TODO: Support paging
+						...toBytePair(content.length),
+						...toBytePair(fileContentOffset)
+					];
+					
+					fileContentOffset += content.length;
+					
+					return entry;
+				});
+			const fileContents = fileEntries.map(o => o.content);
+
+			return [
+				...header, 
+				..._.flatten(fileEntriesTable), 
+				..._.flatten(fileContents)
+			];
+		},
+		
 		generateBlob: (project) => {
 			const obj = that.generateObj(project);
 			
 			const arrays = [
-				padArrayEnd(obj.palette, 16, 0), 
-				toBytePair(obj.tileSet.length),
-				obj.tileSet,
-				toBytePair(obj.maps.length),
-				obj.maps
+				that.generateInternalFileSystem(project)
 			].map(a => new Uint8Array(a));
 			
 			return new Blob(arrays, { type: 'application/octet-stream' });
