@@ -29,6 +29,14 @@ typedef struct resource_entry_format {
 	unsigned int offset;
 } resource_entry_format;
 
+typedef struct resource_map_format {
+	unsigned int id;
+	unsigned int width;
+	unsigned int height;
+	char name[32];
+	char tiles[];
+} resource_map_format;
+
 const resource_header_format *resource_header = RESOURCE_BASE_ADDR;
 const resource_entry_format *resource_entries = RESOURCE_BASE_ADDR + sizeof(resource_header_format);
 
@@ -107,9 +115,10 @@ char handle_title() {
 	SMS_loadBGPalette(resource_get_pointer(resource_find("main.pal")));
 	SMS_loadTiles(resource_get_pointer(resource_find("main.til")), 4, 256 * 32);
 
-	char *o = resource_get_pointer(resource_find("level001.map"));
-	for (char y = 0; y != 9; y++) {
-		for (char x = 0; x != 16; x++) {
+	resource_map_format *map = (resource_map_format *) resource_get_pointer(resource_find("level001.map"));
+	char *o = map->tiles;
+	for (char y = 0; y != map->height; y++) {
+		for (char x = 0; x != map->width; x++) {
 			draw_tile(x << 1, y << 1, *o);
 			o++;
 		}
@@ -117,6 +126,8 @@ char handle_title() {
 
 	SMS_setNextTileatXY(3, 16);
 	puts("Press any button to start");
+	SMS_setNextTileatXY(3, 17);
+	puts(map->name);
 
 	SMS_displayOn();
 	
