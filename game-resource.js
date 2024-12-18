@@ -7,7 +7,6 @@
 	}
 	
 	const stringToPaddedByteArray = (s, len) => padArrayEnd(s.split('').map(ch => ch.charCodeAt(0)), len, 0);
-	
 	const toBytePair = n => [n & 0xFF, (n >> 8) & 0xFF];
 
 	const that = {
@@ -56,7 +55,16 @@
 				}
 			}
 			
-			const maps = _.flatten(project.maps[0].tileIndexes);
+			const maps = project.maps.map(({ id, name, tileIndexes }, idx) => ({
+				fileName: `level${(idx + 1).toString().padStart(3, '0')}.map`,
+				content: [
+					...toBytePair(id),
+					...toBytePair(project.options.mapWidth),
+					...toBytePair(project.options.mapHeight),
+					...stringToPaddedByteArray(name, 32, 0),
+					..._.flatten(tileIndexes)
+				]
+			}));
 				
 			return {
 				palette,
@@ -68,10 +76,14 @@
 		generateInternalFiles: (project) => {
 			const obj = that.generateObj(project);
 
+			console.log(obj.maps);
+			const maps = Object.fromEntries(obj.maps.map(m => [m.fileName, m.content]));
+			console.log(maps);
+
 			return {
 				'main.pal': padArrayEnd(obj.palette, 16, 0),
 				'main.til': obj.tileSet,
-				'level001.map': obj.maps
+				...maps
 			};			
 		},
 
