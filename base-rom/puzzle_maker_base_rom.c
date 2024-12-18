@@ -17,6 +17,8 @@
 #define RESOURCE_BANK (2)
 #define RESOURCE_BASE_ADDR (0x8000)
 
+#define MAP_SCREEN_Y (6)
+
 typedef struct resource_header_format {
 	char signature[4];
 	unsigned int file_count;
@@ -85,6 +87,8 @@ char handle_gameover() {
 void draw_tile(char x, char y, unsigned int tileNumber) {
 	static unsigned int sms_tile;
 	
+	y += MAP_SCREEN_Y;
+	
 	sms_tile = tileNumber << 2;
 	
 	SMS_setNextTileatXY(x, y);	
@@ -124,9 +128,9 @@ char handle_title() {
 		}
 	}
 
-	SMS_setNextTileatXY(3, 16);
+	SMS_setNextTileatXY(3, 1);
 	puts("Press any button to start");
-	SMS_setNextTileatXY(3, 17);
+	SMS_setNextTileatXY(3, 2);
 	puts(map->name);
 
 	SMS_displayOn();
