@@ -64,6 +64,8 @@ resource_entry_format *resource_find(char *name) {
 char *resource_get_pointer(resource_entry_format *entry) {
 	SMS_mapROMBank(RESOURCE_BANK);
 	
+	if (!entry) return 0;
+	
 	unsigned int page = entry->page;
 	char *p = RESOURCE_BASE_ADDR + entry->offset;
 	
@@ -74,14 +76,6 @@ char *resource_get_pointer(resource_entry_format *entry) {
 void load_standard_palettes() {
 	SMS_setBGPaletteColor(0, 0);
 	SMS_setBGPaletteColor(1, 0x3F);
-}
-
-char gameplay_loop() {
-	return STATE_GAMEOVER;
-}
-
-char handle_gameover() {	
-	return STATE_START;
 }
 
 void draw_tile(char x, char y, unsigned int tileNumber) {
@@ -98,6 +92,31 @@ void draw_tile(char x, char y, unsigned int tileNumber) {
 	SMS_setNextTileatXY(x, y + 1);
 	SMS_setTile(sms_tile + 1);
 	SMS_setTile(sms_tile + 3);
+}
+
+resource_map_format *load_map(int n) {
+	char map_file_name[14];
+	sprintf(map_file_name, "level%03d.map", n);
+	resource_map_format *map = (resource_map_format *) resource_get_pointer(resource_find(map_file_name));
+	return map;
+}
+
+void draw_map(resource_map_format *map) {
+	char *o = map->tiles;
+	for (char y = 0; y != map->height; y++) {
+		for (char x = 0; x != map->width; x++) {
+			draw_tile(x << 1, y << 1, *o);
+			o++;
+		}
+	}
+}
+
+char gameplay_loop() {
+	return STATE_GAMEOVER;
+}
+
+char handle_gameover() {	
+	return STATE_START;
 }
 
 char handle_title() {
@@ -118,20 +137,19 @@ char handle_title() {
 	
 	SMS_loadBGPalette(resource_get_pointer(resource_find("main.pal")));
 	SMS_loadTiles(resource_get_pointer(resource_find("main.til")), 4, 256 * 32);
-
-	resource_map_format *map = (resource_map_format *) resource_get_pointer(resource_find("level001.map"));
-	char *o = map->tiles;
-	for (char y = 0; y != map->height; y++) {
-		for (char x = 0; x != map->width; x++) {
-			draw_tile(x << 1, y << 1, *o);
-			o++;
-		}
-	}
+	
+	resource_map_format *map = load_map(1);
+	draw_map(map);
 
 	SMS_setNextTileatXY(3, 1);
 	puts("Press any button to start");
+
 	SMS_setNextTileatXY(3, 2);
 	puts(map->name);
+
+	SMS_setNextTileatXY(22, 3);
+	puts("next ===>");
+	
 
 	SMS_displayOn();
 	
