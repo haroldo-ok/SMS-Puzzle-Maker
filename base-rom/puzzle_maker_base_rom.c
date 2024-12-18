@@ -121,49 +121,58 @@ char handle_gameover() {
 
 char handle_title() {
 	unsigned int joy = SMS_getKeysStatus();
-
-	SMS_waitForVBlank();
-	SMS_displayOff();
-	SMS_disableLineInterrupt();
+	int map_number = 1;
 	
-	load_standard_palettes();
-	
-	SMS_VRAMmemsetW(0, 0, 16 * 1024); 
-
-	SMS_load1bppTiles(font_1bpp, 352, font_1bpp_size, 0, 1);
-	SMS_configureTextRenderer(352 - 32);
-	
-	SMS_mapROMBank(RESOURCE_BANK);
-	
-	SMS_loadBGPalette(resource_get_pointer(resource_find("main.pal")));
-	SMS_loadTiles(resource_get_pointer(resource_find("main.til")), 4, 256 * 32);
-	
-	resource_map_format *map = load_map(1);
-	draw_map(map);
-
-	SMS_setNextTileatXY(3, 1);
-	puts("Press any button to start");
-
-	SMS_setNextTileatXY(3, 2);
-	puts(map->name);
-
-	SMS_setNextTileatXY(22, 3);
-	puts("next ===>");
-	
-
-	SMS_displayOn();
-	
-	// Wait button press
-	do {
+	while (1) {
 		SMS_waitForVBlank();
-		joy = SMS_getKeysStatus();
-	} while (!(joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
+		SMS_displayOff();
+		SMS_disableLineInterrupt();
+		
+		load_standard_palettes();
+		
+		SMS_VRAMmemsetW(0, 0, 16 * 1024); 
 
-	// Wait button release
-	do {
-		SMS_waitForVBlank();
-		joy = SMS_getKeysStatus();
-	} while ((joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
+		SMS_load1bppTiles(font_1bpp, 352, font_1bpp_size, 0, 1);
+		SMS_configureTextRenderer(352 - 32);
+		
+		SMS_mapROMBank(RESOURCE_BANK);
+		
+		SMS_loadBGPalette(resource_get_pointer(resource_find("main.pal")));
+		SMS_loadTiles(resource_get_pointer(resource_find("main.til")), 4, 256 * 32);
+		
+		resource_map_format *map = load_map(map_number);
+		if (!map) {
+			map_number = 1;
+			load_map(map_number);
+		}
+		draw_map(map);
+
+		SMS_setNextTileatXY(3, 1);
+		puts("Press button to view next map");
+
+		SMS_setNextTileatXY(3, 2);
+		puts(map->name);
+
+		SMS_setNextTileatXY(22, 3);
+		puts("next ===>");
+		
+
+		SMS_displayOn();
+		
+		// Wait button press
+		do {
+			SMS_waitForVBlank();
+			joy = SMS_getKeysStatus();
+		} while (!(joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
+		
+		map_number++;
+
+		// Wait button release
+		do {
+			SMS_waitForVBlank();
+			joy = SMS_getKeysStatus();
+		} while ((joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
+	}
 
 	return STATE_GAMEPLAY;
 }
