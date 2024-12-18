@@ -143,14 +143,14 @@ char handle_title() {
 		resource_map_format *map = load_map(map_number);
 		if (!map) {
 			map_number = 1;
-			load_map(map_number);
+			map = load_map(map_number);
 		}
 		draw_map(map);
 
-		SMS_setNextTileatXY(3, 1);
+		SMS_setNextTileatXY(2, 1);
 		puts("Press button to view next map");
 
-		SMS_setNextTileatXY(3, 2);
+		SMS_setNextTileatXY(2, 2);
 		puts(map->name);
 
 		SMS_setNextTileatXY(22, 3);
