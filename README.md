@@ -9,3 +9,6 @@ Based on Nikki's TinyMapEditor: https://github.com/nikki/TinyMapEditor
 
 Inspired by Retro-Puzzle-Maker: https://puzzle.nes.science/home
 
+Default tileset adapted from:
+- Sokoban (100+ tiles), by Kenney: https://opengameart.org/content/sokoban-100-tiles
+- Ice Dungeon, by Angel: https://opengameart.org/content/ice-dungeon
