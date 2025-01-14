@@ -609,7 +609,7 @@ var tinyMapEditor = (function() {
 			const storedTileSet = storage.get('tileSet');
 			tileSetName = storedTileSet && storedTileSet.name || 'Unnamed';
 			tileSetForSms = storedTileSet && storedTileSet.forMasterSystem;
-			sprite.src = storedTileSet && storedTileSet.src || 'assets/tilemap_32a.png';
+			sprite.src = storedTileSet && storedTileSet.src || 'assets/default_tilemap.png';
 			
             map.canvas.width = width * tileSize;
             map.canvas.height = height * tileSize;
