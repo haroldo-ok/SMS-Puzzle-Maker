@@ -12,3 +12,5 @@ Inspired by Retro-Puzzle-Maker: https://puzzle.nes.science/home
 Default tileset adapted from:
 - Sokoban (100+ tiles), by Kenney: https://opengameart.org/content/sokoban-100-tiles
 - Ice Dungeon, by Angel: https://opengameart.org/content/ice-dungeon
+- Roguelike/RPG Items, by Joe Williamson: https://opengameart.org/content/roguelikerpg-items
+- Simple broad-purpose tileset, by surt: https://opengameart.org/content/simple-broad-purpose-tileset
