@@ -19,6 +19,8 @@
 
 #define MAP_SCREEN_Y (6)
 
+actor player;
+
 typedef struct resource_header_format {
 	char signature[4];
 	unsigned int file_count;
@@ -111,6 +113,19 @@ void draw_map(resource_map_format *map) {
 	}
 }
 
+void player_find_start(resource_map_format *map) {
+	char *o = map->tiles;
+	for (char y = 0; y != map->height; y++) {
+		for (char x = 0; x != map->width; x++) {
+			if (*o == 2) {
+				player.x = x << 4;
+				player.y = (y << 4) + (MAP_SCREEN_Y << 3);
+			};
+			o++;
+		}
+	}
+}
+
 char gameplay_loop() {
 	return STATE_GAMEOVER;
 }
@@ -122,7 +137,6 @@ char handle_gameover() {
 char handle_title() {
 	unsigned int joy = SMS_getKeysStatus();
 	int map_number = 1;	
-	actor player;
 	
 	while (1) {
 		SMS_waitForVBlank();
@@ -161,6 +175,8 @@ char handle_title() {
 		SMS_displayOn();
 		
 		init_actor(&player, 32, 32, 2, 1, 8, 2);
+		player_find_start(map);
+
 		
 		// Wait button press
 		do {
