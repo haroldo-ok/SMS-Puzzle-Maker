@@ -121,7 +121,8 @@ char handle_gameover() {
 
 char handle_title() {
 	unsigned int joy = SMS_getKeysStatus();
-	int map_number = 1;
+	int map_number = 1;	
+	actor player;
 	
 	while (1) {
 		SMS_waitForVBlank();
@@ -159,9 +160,17 @@ char handle_title() {
 
 		SMS_displayOn();
 		
+		init_actor(&player, 32, 32, 2, 1, 8, 2);
+		
 		// Wait button press
 		do {
+			SMS_initSprites();
+			draw_actor(&player);
+			SMS_finalizeSprites();	
+			
 			SMS_waitForVBlank();
+			SMS_copySpritestoSAT();	
+			
 			joy = SMS_getKeysStatus();
 		} while (!(joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
 		
