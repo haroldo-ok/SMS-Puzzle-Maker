@@ -148,6 +148,8 @@ char handle_gameover() {
 
 char handle_title() {
 	unsigned int joy = SMS_getKeysStatus();
+	unsigned int joy_prev = 0;
+	
 	int map_number = 1;	
 	
 	while (1) {
@@ -192,6 +194,21 @@ char handle_title() {
 		
 		// Wait button press
 		do {
+			if (joy != joy_prev) {
+				char ply_map_x = get_actor_map_x(&player);
+				char ply_map_y = get_actor_map_y(&player);
+				
+				if (joy & PORT_A_KEY_UP) {
+					set_actor_map_xy(&player, ply_map_x, ply_map_y - 1);
+				} else if (joy & PORT_A_KEY_DOWN) {
+					set_actor_map_xy(&player, ply_map_x, ply_map_y + 1);
+				} else if (joy & PORT_A_KEY_LEFT) {
+					set_actor_map_xy(&player, ply_map_x - 1, ply_map_y);
+				} else if (joy & PORT_A_KEY_RIGHT) {
+					set_actor_map_xy(&player, ply_map_x + 1, ply_map_y);
+				}
+			}
+			
 			SMS_initSprites();
 			draw_actor(&player);
 			SMS_finalizeSprites();	
@@ -199,6 +216,7 @@ char handle_title() {
 			SMS_waitForVBlank();
 			SMS_copySpritestoSAT();	
 			
+			joy_prev = joy;
 			joy = SMS_getKeysStatus();
 		} while (!(joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
 		
