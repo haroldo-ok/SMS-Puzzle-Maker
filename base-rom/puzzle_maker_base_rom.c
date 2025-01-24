@@ -96,6 +96,10 @@ void draw_tile(char x, char y, unsigned int tileNumber) {
 	SMS_setTile(sms_tile + 3);
 }
 
+char get_map_tile(resource_map_format *map, char x, char y) {
+	return *(map->tiles + (y * map->width) + x);
+}
+
 resource_map_format *load_map(int n) {
 	char map_file_name[14];
 	sprintf(map_file_name, "level%03d.map", n);
@@ -126,10 +130,17 @@ void set_actor_map_xy(actor *act, char x, char y) {
 	act->y = (y << 4) + (MAP_SCREEN_Y << 3);
 }
 
-void try_moving_actor_on_map(actor *act, signed char delta_x, signed char delta_y) {
+void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char delta_x, signed char delta_y) {
 	char x = get_actor_map_x(act);
 	char y = get_actor_map_y(act);
-	set_actor_map_xy(act, x + delta_x, y + delta_y);
+	
+	char new_x = x + delta_x;
+	char new_y = y + delta_y;
+	
+	char tile = get_map_tile(map, new_x, new_y);	
+	if (tile > 3) return;
+	
+	set_actor_map_xy(act, new_x, new_y);
 }
 
 void player_find_start(resource_map_format *map) {
@@ -205,13 +216,13 @@ char handle_title() {
 				char ply_map_y = get_actor_map_y(&player);
 				
 				if (joy & PORT_A_KEY_UP) {
-					try_moving_actor_on_map(&player, 0, -1);
+					try_moving_actor_on_map(&player, map, 0, -1);
 				} else if (joy & PORT_A_KEY_DOWN) {
-					try_moving_actor_on_map(&player, 0, 1);
+					try_moving_actor_on_map(&player, map, 0, 1);
 				} else if (joy & PORT_A_KEY_LEFT) {
-					try_moving_actor_on_map(&player, -1, 0);
+					try_moving_actor_on_map(&player, map, -1, 0);
 				} else if (joy & PORT_A_KEY_RIGHT) {
-					try_moving_actor_on_map(&player, 1, 0);
+					try_moving_actor_on_map(&player, map, 1, 0);
 				}
 			}
 			
