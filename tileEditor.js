@@ -394,7 +394,7 @@ var tinyMapEditor = (function() {
 			return {
 				tool: {
 					name: APP_NAME,
-					version: '0.16.0',
+					version: '0.16.1',
 					format: '0.1.0'
 				},
 				options: {
@@ -609,7 +609,12 @@ var tinyMapEditor = (function() {
 			const storedTileSet = storage.get('tileSet');
 			tileSetName = storedTileSet && storedTileSet.name || 'Unnamed';
 			tileSetForSms = storedTileSet && storedTileSet.forMasterSystem;
-			sprite.src = storedTileSet && storedTileSet.src || 'assets/default_tilemap.png';
+			
+			let storedSrc = storedTileSet && storedTileSet.src || 'assets/default_tilemap.png';
+			if (storedSrc.startsWith('http:') || storedSrc.startsWith('https:')) {
+				storedSrc = 'assets/default_tilemap.png';
+			}
+			sprite.src = storedSrc;
 			
             map.canvas.width = width * tileSize;
             map.canvas.height = height * tileSize;
