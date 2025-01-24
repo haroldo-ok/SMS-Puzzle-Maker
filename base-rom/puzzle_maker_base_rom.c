@@ -126,6 +126,12 @@ void set_actor_map_xy(actor *act, char x, char y) {
 	act->y = (y << 4) + (MAP_SCREEN_Y << 3);
 }
 
+void try_moving_actor_on_map(actor *act, signed char delta_x, signed char delta_y) {
+	char x = get_actor_map_x(act);
+	char y = get_actor_map_y(act);
+	set_actor_map_xy(act, x + delta_x, y + delta_y);
+}
+
 void player_find_start(resource_map_format *map) {
 	char *o = map->tiles;
 	for (char y = 0; y != map->height; y++) {
@@ -199,13 +205,13 @@ char handle_title() {
 				char ply_map_y = get_actor_map_y(&player);
 				
 				if (joy & PORT_A_KEY_UP) {
-					set_actor_map_xy(&player, ply_map_x, ply_map_y - 1);
+					try_moving_actor_on_map(&player, 0, -1);
 				} else if (joy & PORT_A_KEY_DOWN) {
-					set_actor_map_xy(&player, ply_map_x, ply_map_y + 1);
+					try_moving_actor_on_map(&player, 0, 1);
 				} else if (joy & PORT_A_KEY_LEFT) {
-					set_actor_map_xy(&player, ply_map_x - 1, ply_map_y);
+					try_moving_actor_on_map(&player, -1, 0);
 				} else if (joy & PORT_A_KEY_RIGHT) {
-					set_actor_map_xy(&player, ply_map_x + 1, ply_map_y);
+					try_moving_actor_on_map(&player, 1, 0);
 				}
 			}
 			
