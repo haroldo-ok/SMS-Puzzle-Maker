@@ -166,6 +166,7 @@ char handle_gameover() {
 char handle_title() {
 	unsigned int joy = SMS_getKeysStatus();
 	unsigned int joy_prev = 0;
+	unsigned int joy_delay = 0;
 	
 	int map_number = 1;	
 	
@@ -211,7 +212,8 @@ char handle_title() {
 		
 		// Wait button press
 		do {
-			if (joy != joy_prev) {
+			if (joy_delay) joy_delay--;
+			if (!joy_delay || joy != joy_prev) {
 				char ply_map_x = get_actor_map_x(&player);
 				char ply_map_y = get_actor_map_y(&player);
 				
@@ -224,6 +226,8 @@ char handle_title() {
 				} else if (joy & PORT_A_KEY_RIGHT) {
 					try_moving_actor_on_map(&player, map, 1, 0);
 				}
+				
+				joy_delay = 10;
 			}
 			
 			SMS_initSprites();
