@@ -19,6 +19,8 @@
 
 #define MAP_SCREEN_Y (6)
 
+actor player;
+
 typedef struct resource_header_format {
 	char signature[4];
 	unsigned int file_count;
@@ -94,6 +96,10 @@ void draw_tile(char x, char y, unsigned int tileNumber) {
 	SMS_setTile(sms_tile + 3);
 }
 
+char get_map_tile(resource_map_format *map, char x, char y) {
+	return *(map->tiles + (y * map->width) + x);
+}
+
 resource_map_format *load_map(int n) {
 	char map_file_name[14];
 	sprintf(map_file_name, "level%03d.map", n);
@@ -111,6 +117,44 @@ void draw_map(resource_map_format *map) {
 	}
 }
 
+char get_actor_map_x(actor *act) {
+	return act->x >> 4;
+}
+
+char get_actor_map_y(actor *act) {
+	return (act->y - (MAP_SCREEN_Y << 3)) >> 4;
+}
+
+void set_actor_map_xy(actor *act, char x, char y) {
+	act->x = x << 4;
+	act->y = (y << 4) + (MAP_SCREEN_Y << 3);
+}
+
+void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char delta_x, signed char delta_y) {
+	char x = get_actor_map_x(act);
+	char y = get_actor_map_y(act);
+	
+	char new_x = x + delta_x;
+	char new_y = y + delta_y;
+	
+	char tile = get_map_tile(map, new_x, new_y);	
+	if (tile > 3) return;
+	
+	set_actor_map_xy(act, new_x, new_y);
+}
+
+void player_find_start(resource_map_format *map) {
+	char *o = map->tiles;
+	for (char y = 0; y != map->height; y++) {
+		for (char x = 0; x != map->width; x++) {
+			if (*o == 2) {
+				set_actor_map_xy(&player, x, y);
+			}
+			o++;
+		}
+	}
+}
+
 char gameplay_loop() {
 	return STATE_GAMEOVER;
 }
@@ -121,8 +165,10 @@ char handle_gameover() {
 
 char handle_title() {
 	unsigned int joy = SMS_getKeysStatus();
+	unsigned int joy_prev = 0;
+	unsigned int joy_delay = 0;
+	
 	int map_number = 1;	
-	actor player;
 	
 	while (1) {
 		SMS_waitForVBlank();
@@ -161,9 +207,29 @@ char handle_title() {
 		SMS_displayOn();
 		
 		init_actor(&player, 32, 32, 2, 1, 8, 2);
+		player_find_start(map);
+
 		
 		// Wait button press
 		do {
+			if (joy_delay) joy_delay--;
+			if (!joy_delay || joy != joy_prev) {
+				char ply_map_x = get_actor_map_x(&player);
+				char ply_map_y = get_actor_map_y(&player);
+				
+				if (joy & PORT_A_KEY_UP) {
+					try_moving_actor_on_map(&player, map, 0, -1);
+				} else if (joy & PORT_A_KEY_DOWN) {
+					try_moving_actor_on_map(&player, map, 0, 1);
+				} else if (joy & PORT_A_KEY_LEFT) {
+					try_moving_actor_on_map(&player, map, -1, 0);
+				} else if (joy & PORT_A_KEY_RIGHT) {
+					try_moving_actor_on_map(&player, map, 1, 0);
+				}
+				
+				joy_delay = 10;
+			}
+			
 			SMS_initSprites();
 			draw_actor(&player);
 			SMS_finalizeSprites();	
@@ -171,6 +237,7 @@ char handle_title() {
 			SMS_waitForVBlank();
 			SMS_copySpritestoSAT();	
 			
+			joy_prev = joy;
 			joy = SMS_getKeysStatus();
 		} while (!(joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
 		
@@ -211,6 +278,6 @@ void main() {
 }
 
 SMS_EMBED_SEGA_ROM_HEADER(9999,0); // code 9999 hopefully free, here this means 'homebrew'
-SMS_EMBED_SDSC_HEADER(0,1, 2024,12,05, "Haroldo-OK\\2024", "SMS-Puzzle-Maker base ROM",
+SMS_EMBED_SDSC_HEADER(0,2, 2025,01,23, "Haroldo-OK\\2025", "SMS-Puzzle-Maker base ROM",
   "Made for SMS-Puzzle-Maker - https://github.com/haroldo-ok/SMS-Puzzle-Maker.\n"
   "Built using devkitSMS & SMSlib - https://github.com/sverx/devkitSMS");
