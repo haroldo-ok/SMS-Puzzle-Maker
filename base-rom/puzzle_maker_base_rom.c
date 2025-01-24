@@ -113,14 +113,26 @@ void draw_map(resource_map_format *map) {
 	}
 }
 
+char get_actor_map_x(actor *act) {
+	return act->x >> 4;
+}
+
+char get_actor_map_y(actor *act) {
+	return (act->y - (MAP_SCREEN_Y << 3)) >> 4;
+}
+
+void set_actor_map_xy(actor *act, char x, char y) {
+	act->x = x << 4;
+	act->y = (y << 4) + (MAP_SCREEN_Y << 3);
+}
+
 void player_find_start(resource_map_format *map) {
 	char *o = map->tiles;
 	for (char y = 0; y != map->height; y++) {
 		for (char x = 0; x != map->width; x++) {
 			if (*o == 2) {
-				player.x = x << 4;
-				player.y = (y << 4) + (MAP_SCREEN_Y << 3);
-			};
+				set_actor_map_xy(&player, x, y);
+			}
 			o++;
 		}
 	}
