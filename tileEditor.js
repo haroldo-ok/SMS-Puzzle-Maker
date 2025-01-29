@@ -19,7 +19,7 @@ var tinyMapEditor = (function() {
 		mapName,
 		mapId,
         tiles,
-        alpha,
+        tileAttrs,
 
         player,
         draw,
@@ -52,6 +52,31 @@ var tinyMapEditor = (function() {
 		},
 		put: (k, v) => localStorage[STORAGE_PREFIX + k] = JSON.stringify(v)
 	};
+
+	const DEFAULT_TILE_ATTR = {
+		tileIndex: 0,
+		isSolid: false,
+		isPlayerStart: false,
+		isPlayerEnd: false
+	};
+	
+	const DEFAULT_TILE_ATTRS = [
+		{
+			tileIndex: 1
+		},
+		{
+			tileIndex: 2,
+			isPlayerStart: true
+		},
+		{
+			tileIndex: 3,
+			isPlayerEnd: true
+		},
+		{
+			tileIndex: 4,
+			isSolid: true
+		}
+	];
 	
 	const maps = {
 		
@@ -404,7 +429,40 @@ var tinyMapEditor = (function() {
 			this.drawMapList();
 		},
 		
+		prepareTileAttrsStructure : function() {
+			if (!tileAttrs) {
+				tileAttrs = [];
+			}
+			
+			tileAttrs.length = this.getTileCount();
+			
+			DEFAULT_TILE_ATTRS.forEach((defaultAttr, index) => {
+				const tileAttr = tileAttrs[index];
+				if (!tileAttr) tileAttrs[index] = { ...defaultAttr };
+			});
+			
+			tileAttrs = _.map(tileAttrs, tileAttr => {
+				if (!tileAttr) {
+					return null;
+				}
+				
+				const cleanedUpAttr = { ...DEFAULT_TILE_ATTR };				
+				Object.keys(tileAttr).forEach(k => cleanedUpAttr[k] = tileAttr[k]);
+				
+				return cleanedUpAttr;
+			});
+			
+			_.each(tileAttrs, (tileAttr, index) =>  {
+				const cleanedUpAttr = tileAttr || { ...tileAttrs[index - 1] };
+				cleanedUpAttr.tileIndex = index + 1;
+				tileAttrs[index] = cleanedUpAttr;
+			});
+
+			console.log('tileAttrs', tileAttrs);
+		},
+		
 		showTileAttrsPopup : function() {
+			this.prepareTileAttrsStructure();
 			tileAttrsDialog.showModal();
 		},
 		
@@ -648,7 +706,6 @@ var tinyMapEditor = (function() {
 
         destroy : function() {
             clearInterval(draw);
-            alpha = [];
         }
     };
 
