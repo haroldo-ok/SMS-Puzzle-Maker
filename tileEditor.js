@@ -26,8 +26,10 @@ var tinyMapEditor = (function() {
         build = getById('build'),
         test = getById('test'),
 		tileInput = getById('tileInput'),
+		
 		tileAttrsButton = getById('tileAttrsButton'),
 		tileAttrsDialog = getById('tileAttrsDialog'),
+		
 		loadProjectInput = getById('loadProjectInput'),
 		
 		widthInput = getById('width'),
@@ -123,11 +125,23 @@ var tinyMapEditor = (function() {
 
 			return { col, row };
         },
+		
+		getTilesPerRow : function() {
+			return Math.ceil(pal.canvas.width / tileSize);
+		},
+
+		getTilesPerCol : function() {
+			return Math.ceil(pal.canvas.height / tileSize);
+		},
+		
+		getTileCount : function() {
+			return this.getTilesPerRow() * this.getTilesPerCol();
+		},
 
         getSrcTileCoordByIndex : function(tileIndex) {
 			if (!tileIndex) return null;
 
-			const tilesPerRow = Math.ceil(pal.canvas.width / tileSize);
+			const tilesPerRow = this.getTilesPerRow();
 			const col = (tileIndex -1) % tilesPerRow;
 			const row = Math.floor((tileIndex -1) / tilesPerRow);
 
@@ -390,6 +404,10 @@ var tinyMapEditor = (function() {
 			this.drawMapList();
 		},
 		
+		showTileAttrsPopup : function() {
+			tileAttrsDialog.showModal();
+		},
+		
 		generateProjectObject : function() {
 			this.saveCurrentMapToMapList();
 			
@@ -492,7 +510,7 @@ var tinyMapEditor = (function() {
                 _this.drawTool();
             }, false);
 			
-			tileAttrsButton.addEventListener('click', () => tileAttrsDialog.showModal());
+			tileAttrsButton.addEventListener('click', () => _this.showTileAttrsPopup());
 			
 			/**
 			 * Map list events.
