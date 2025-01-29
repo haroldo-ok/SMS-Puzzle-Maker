@@ -26,6 +26,8 @@ var tinyMapEditor = (function() {
         build = getById('build'),
         test = getById('test'),
 		tileInput = getById('tileInput'),
+		tileAttrsButton = getById('tileAttrsButton'),
+		tileAttrsDialog = getById('tileAttrsDialog'),
 		loadProjectInput = getById('loadProjectInput'),
 		
 		widthInput = getById('width'),
@@ -489,6 +491,8 @@ var tinyMapEditor = (function() {
 				
                 _this.drawTool();
             }, false);
+			
+			tileAttrsButton.addEventListener('click', () => tileAttrsDialog.showModal());
 			
 			/**
 			 * Map list events.
