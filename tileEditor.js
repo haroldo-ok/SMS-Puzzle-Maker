@@ -466,6 +466,11 @@ var tinyMapEditor = (function() {
 			
 			const { h, newTd, newDataCheckbox } = DomUtil;
 						
+			const handleCheckboxAfterClick = result => {
+				console.log('Clicked on checkbox', result);
+			}
+			const checkboxAttrs = { '@afterclick': handleCheckboxAfterClick };
+			
 			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?']
 				.map(name => h('th', {}, name));				
 				
@@ -473,14 +478,13 @@ var tinyMapEditor = (function() {
 				h('tr', {}, 
 					newTd('' + tileAttr.tileIndex),
 					newTd('...'),
-					newTd(newDataCheckbox(tileAttr, 'isSolid')),
-					newTd(newDataCheckbox(tileAttr, 'isPlayerEnd')),
-					newTd(newDataCheckbox(tileAttr, 'isPlayerStart'))
+					newTd(newDataCheckbox(tileAttr, 'isSolid', checkboxAttrs)),
+					newTd(newDataCheckbox(tileAttr, 'isPlayerEnd', checkboxAttrs)),
+					newTd(newDataCheckbox(tileAttr, 'isPlayerStart', checkboxAttrs))
 				)
 			);
 			
-			const closePopupButton = h('button', {}, 'Close popup');
-			closePopupButton.addEventListener('click', () => tileAttrsDialog.close());
+			const closePopupButton = h('button', {'@click': () => tileAttrsDialog.close() }, 'Close popup');
 				
 			const popupHeader = h('h4', {}, 
 				'Tile Attributes (W.I.P)',

@@ -6,7 +6,12 @@
 		const el = document.createElement(type);
 
 		for (const key in attributes) {
-			el.setAttribute(key, attributes[key]);
+			if (key.startsWith('@')) {
+				const eventName = key.slice(1);
+				el.addEventListener(eventName, attributes[key]);
+			} else {
+				el.setAttribute(key, attributes[key]);
+			}
 		}
 
 		children.forEach(child => {
@@ -31,14 +36,18 @@
 	const newCheckbox = attributes => newInput('checkbox', { ...attributes });
 	
 	const newDataCheckbox = (object, attrName, attributes = {}) => {
-		const checkbox = newCheckbox(attributes);
-		
-		checkbox.checked = object[attrName];
-		checkbox.addEventListener('click', e => {
+		const handleClick = e => {
 			const target = getEventTarget(e);
 			object[attrName] = target.checked;
-			console.log('Clicked on checkbox', { checked: target.checked, object });					
+			attributes['@afterclick'] && attributes['@afterclick']({ event: e, object, target });
+		}
+		
+		const checkbox = newCheckbox({
+			'@click': handleClick, 
+			...attributes
 		});
+		
+		checkbox.checked = object[attrName];
 		
 		return checkbox;
 	}
