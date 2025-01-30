@@ -22,6 +22,8 @@
 	
 	const h = elFactory;
 	
+	const getEventTarget = event => event.target || event.srcElement;
+	
 	const newTd = (...children) => h('td', {}, ...children);
 	const newDiv = (...children) => h('div', {}, ...children);
 	
@@ -33,7 +35,7 @@
 		
 		checkbox.checked = object[attrName];
 		checkbox.addEventListener('click', e => {
-			const target = e.target || e.srcElement;					
+			const target = getEventTarget(e);
 			object[attrName] = target.checked;
 			console.log('Clicked on checkbox', { checked: target.checked, object });					
 		});
@@ -42,7 +44,8 @@
 	}
 	
 	window.DomUtil = {
-		h, newTd, newDiv, 
+		h, getEventTarget,
+		newTd, newDiv, 
 		newInput, newCheckbox,
 		newDataCheckbox
 	};

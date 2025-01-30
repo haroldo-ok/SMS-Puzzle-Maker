@@ -274,7 +274,7 @@ var tinyMapEditor = (function() {
 		},
 		
 		selectMap: function(e) {
-			const target = e.target || e.srcElement;
+			const target = DomUtil.getEventTarget(e);
 			if (target.name !== 'selectedMap') return;
 			
 			this.saveCurrentMapToMapList();
