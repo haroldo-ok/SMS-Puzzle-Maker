@@ -490,7 +490,9 @@ var tinyMapEditor = (function() {
 				h('tr', {}, 
 					createTd('' + tileAttr.tileIndex),
 					createTd('...'),
-					createDataCheckbox(tileAttr, 'isSolid')
+					createTd(createDataCheckbox(tileAttr, 'isSolid')),
+					createTd(createDataCheckbox(tileAttr, 'isPlayerEnd')),
+					createTd(createDataCheckbox(tileAttr, 'isPlayerStart'))
 				)
 			);
 			
