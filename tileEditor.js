@@ -470,15 +470,18 @@ var tinyMapEditor = (function() {
 			const createDiv = (...children) => h('div', {}, ...children);
 			const createCheckbox = attributes => h('input', { type: 'checkbox', ...attributes });
 			
-			const createDataCheckbox = (object, attrName, ...attributes) => createCheckbox({
-				checked: object[attrName],
-				onclick: e => {
+			const createDataCheckbox = (object, attrName, attributes) => {
+				const checkbox = createCheckbox(attributes || {});
+				
+				checkbox.checked = object[attrName];
+				checkbox.addEventListener('click', e => {
 					const target = e.target || e.srcElement;					
 					object[attrName] = target.checked;
-					console.log('Clicked on checkbox', { checked: target.checked, tileAttrs });
-				},
-				...attributes
-			});
+					console.log('Clicked on checkbox', { checked: target.checked, tileAttrs });					
+				});
+				
+				return checkbox;
+			}
 			
 			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?']
 				.map(name => h('th', {}, name));				
