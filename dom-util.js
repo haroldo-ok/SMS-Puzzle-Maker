@@ -20,5 +20,5 @@
 		return el
 	};
 	
-	window.h = elFactory;
+	window.elFactory = elFactory;
 })();

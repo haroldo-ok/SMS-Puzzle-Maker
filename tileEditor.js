@@ -463,6 +463,18 @@ var tinyMapEditor = (function() {
 		
 		showTileAttrsPopup : function() {
 			this.prepareTileAttrsStructure();
+			
+			const h = elFactory;
+			
+			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?']
+				.map(name => h('th', {}, name));
+			
+			const table = h('table', {}, 
+				h('tr', {}, ...headerRow)
+			);
+			
+			tileAttrsDialog.innerHTML = '';
+			tileAttrsDialog.appendChild(table);
 			tileAttrsDialog.showModal();
 		},
 		
