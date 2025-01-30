@@ -9,6 +9,9 @@
 			if (key.startsWith('@')) {
 				const eventName = key.slice(1);
 				el.addEventListener(eventName, attributes[key]);
+			} else if (key.startsWith('.')) {
+				const propertyName = key.slice(1);
+				el[propertyName] = attributes[key];
 			} else {
 				el.setAttribute(key, attributes[key]);
 			}
@@ -44,10 +47,9 @@
 		
 		const checkbox = newCheckbox({
 			'@click': handleClick, 
+			'.checked': object[attrName],
 			...attributes
 		});
-		
-		checkbox.checked = object[attrName];
 		
 		return checkbox;
 	}
