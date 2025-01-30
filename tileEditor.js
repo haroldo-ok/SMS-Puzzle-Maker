@@ -496,7 +496,13 @@ var tinyMapEditor = (function() {
 				)
 			);
 			
-			const popupHeader = h('h3', {}, 'Tile Attributes (W.I.P)');
+			const closePopupButton = h('button', {}, 'Close popup');
+			closePopupButton.addEventListener('click', () => tileAttrsDialog.close());
+				
+			const popupHeader = h('h4', {}, 
+				'Tile Attributes (W.I.P)',
+				closePopupButton
+			);
 			
 			const table = h('table', {}, 
 				h('tr', {}, ...headerRow),
