@@ -19,13 +19,17 @@ var tinyMapEditor = (function() {
 		mapName,
 		mapId,
         tiles,
-        alpha,
+        tileAttrs,
 
         player,
         draw,
         build = getById('build'),
         test = getById('test'),
 		tileInput = getById('tileInput'),
+		
+		tileAttrsButton = getById('tileAttrsButton'),
+		tileAttrsDialog = getById('tileAttrsDialog'),
+		
 		loadProjectInput = getById('loadProjectInput'),
 		
 		widthInput = getById('width'),
@@ -48,6 +52,31 @@ var tinyMapEditor = (function() {
 		},
 		put: (k, v) => localStorage[STORAGE_PREFIX + k] = JSON.stringify(v)
 	};
+
+	const DEFAULT_TILE_ATTR = {
+		tileIndex: 0,
+		isSolid: false,
+		isPlayerStart: false,
+		isPlayerEnd: false
+	};
+	
+	const DEFAULT_TILE_ATTRS = [
+		{
+			tileIndex: 1
+		},
+		{
+			tileIndex: 2,
+			isPlayerStart: true
+		},
+		{
+			tileIndex: 3,
+			isPlayerEnd: true
+		},
+		{
+			tileIndex: 4,
+			isSolid: true
+		}
+	];
 	
 	const maps = {
 		
@@ -121,11 +150,23 @@ var tinyMapEditor = (function() {
 
 			return { col, row };
         },
+		
+		getTilesPerRow : function() {
+			return Math.ceil(pal.canvas.width / tileSize);
+		},
+
+		getTilesPerCol : function() {
+			return Math.ceil(pal.canvas.height / tileSize);
+		},
+		
+		getTileCount : function() {
+			return this.getTilesPerRow() * this.getTilesPerCol();
+		},
 
         getSrcTileCoordByIndex : function(tileIndex) {
 			if (!tileIndex) return null;
 
-			const tilesPerRow = Math.ceil(pal.canvas.width / tileSize);
+			const tilesPerRow = this.getTilesPerRow();
 			const col = (tileIndex -1) % tilesPerRow;
 			const row = Math.floor((tileIndex -1) / tilesPerRow);
 
@@ -388,6 +429,92 @@ var tinyMapEditor = (function() {
 			this.drawMapList();
 		},
 		
+		prepareTileAttrsStructure : function() {
+			if (!tileAttrs) {
+				tileAttrs = [];
+			}
+			
+			tileAttrs.length = this.getTileCount();
+			
+			DEFAULT_TILE_ATTRS.forEach((defaultAttr, index) => {
+				const tileAttr = tileAttrs[index];
+				if (!tileAttr) tileAttrs[index] = { ...defaultAttr };
+			});
+			
+			tileAttrs = _.map(tileAttrs, tileAttr => {
+				if (!tileAttr) {
+					return null;
+				}
+				
+				const cleanedUpAttr = { ...DEFAULT_TILE_ATTR };				
+				Object.keys(tileAttr).forEach(k => cleanedUpAttr[k] = tileAttr[k]);
+				
+				return cleanedUpAttr;
+			});
+			
+			_.each(tileAttrs, (tileAttr, index) =>  {
+				const cleanedUpAttr = tileAttr || { ...tileAttrs[index - 1] };
+				cleanedUpAttr.tileIndex = index + 1;
+				tileAttrs[index] = cleanedUpAttr;
+			});
+
+			console.log('tileAttrs', tileAttrs);
+		},
+		
+		showTileAttrsPopup : function() {
+			this.prepareTileAttrsStructure();
+			
+			const h = elFactory;
+			
+			const createTd = (...children) => h('td', {}, ...children);
+			const createDiv = (...children) => h('div', {}, ...children);
+			const createCheckbox = attributes => h('input', { type: 'checkbox', ...attributes });
+			
+			const createDataCheckbox = (object, attrName, attributes) => {
+				const checkbox = createCheckbox(attributes || {});
+				
+				checkbox.checked = object[attrName];
+				checkbox.addEventListener('click', e => {
+					const target = e.target || e.srcElement;					
+					object[attrName] = target.checked;
+					console.log('Clicked on checkbox', { checked: target.checked, tileAttrs });					
+				});
+				
+				return checkbox;
+			}
+			
+			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?']
+				.map(name => h('th', {}, name));				
+				
+			const dataRows = tileAttrs.map(tileAttr => 
+				h('tr', {}, 
+					createTd('' + tileAttr.tileIndex),
+					createTd('...'),
+					createTd(createDataCheckbox(tileAttr, 'isSolid')),
+					createTd(createDataCheckbox(tileAttr, 'isPlayerEnd')),
+					createTd(createDataCheckbox(tileAttr, 'isPlayerStart'))
+				)
+			);
+			
+			const closePopupButton = h('button', {}, 'Close popup');
+			closePopupButton.addEventListener('click', () => tileAttrsDialog.close());
+				
+			const popupHeader = h('h4', {}, 
+				'Tile Attributes (W.I.P)',
+				closePopupButton
+			);
+			
+			const table = h('table', {}, 
+				h('tr', {}, ...headerRow),
+				...dataRows
+			);
+			
+			tileAttrsDialog.innerHTML = '';
+			tileAttrsDialog.appendChild(popupHeader);
+			tileAttrsDialog.appendChild(table);
+			tileAttrsDialog.showModal();
+		},
+		
 		generateProjectObject : function() {
 			this.saveCurrentMapToMapList();
 			
@@ -489,6 +616,8 @@ var tinyMapEditor = (function() {
 				
                 _this.drawTool();
             }, false);
+			
+			tileAttrsButton.addEventListener('click', () => _this.showTileAttrsPopup());
 			
 			/**
 			 * Map list events.
@@ -626,7 +755,6 @@ var tinyMapEditor = (function() {
 
         destroy : function() {
             clearInterval(draw);
-            alpha = [];
         }
     };
 

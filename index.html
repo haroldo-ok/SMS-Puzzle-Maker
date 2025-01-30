@@ -52,6 +52,8 @@
                 <p class="card">
 					<label>Tileset to load:<input id="tileInput" type="file" accept="image/*" /></label>
 				</p>
+				
+                <p><input id="tileAttrsButton" type="button" value="Edit Tile Attributes" /></p>				
             </li>
             <li id="selected">
                 <label>Selected Tile</label>
@@ -70,6 +72,9 @@
             </li>
         </ul>
     </menu>
+	
+	<dialog id="tileAttrsDialog">
+	</dialog>
 
 	<script src="RgbQuant-SMS.js/demo/js/underscore-min.js"></script>
 	<script src="RgbQuant-SMS.js/demo/js/underscore-min.js"></script>
@@ -80,6 +85,7 @@
     <script src="js/neatjson.js"></script>
     <script src="js/FileSaver.js"></script>
 	
+    <script src="dom-util.js"></script>
     <script src="game-resource.js"></script>
     <script src="tileEditor.js"></script>
 
