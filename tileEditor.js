@@ -274,7 +274,7 @@ var tinyMapEditor = (function() {
 		},
 		
 		selectMap: function(e) {
-			const target = e.target || e.srcElement;
+			const target = DomUtil.getEventTarget(e);
 			if (target.name !== 'selectedMap') return;
 			
 			this.saveCurrentMapToMapList();
@@ -464,40 +464,27 @@ var tinyMapEditor = (function() {
 		showTileAttrsPopup : function() {
 			this.prepareTileAttrsStructure();
 			
-			const h = elFactory;
-			
-			const createTd = (...children) => h('td', {}, ...children);
-			const createDiv = (...children) => h('div', {}, ...children);
-			const createCheckbox = attributes => h('input', { type: 'checkbox', ...attributes });
-			
-			const createDataCheckbox = (object, attrName, attributes) => {
-				const checkbox = createCheckbox(attributes || {});
-				
-				checkbox.checked = object[attrName];
-				checkbox.addEventListener('click', e => {
-					const target = e.target || e.srcElement;					
-					object[attrName] = target.checked;
-					console.log('Clicked on checkbox', { checked: target.checked, tileAttrs });					
-				});
-				
-				return checkbox;
+			const { h, newTd, newDataCheckbox } = DomUtil;
+						
+			const handleCheckboxAfterClick = result => {
+				console.log('Clicked on checkbox', result);
 			}
+			const checkboxAttrs = { '@afterclick': handleCheckboxAfterClick };
 			
 			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?']
 				.map(name => h('th', {}, name));				
 				
 			const dataRows = tileAttrs.map(tileAttr => 
 				h('tr', {}, 
-					createTd('' + tileAttr.tileIndex),
-					createTd('...'),
-					createTd(createDataCheckbox(tileAttr, 'isSolid')),
-					createTd(createDataCheckbox(tileAttr, 'isPlayerEnd')),
-					createTd(createDataCheckbox(tileAttr, 'isPlayerStart'))
+					newTd('' + tileAttr.tileIndex),
+					newTd('...'),
+					newTd(newDataCheckbox(tileAttr, 'isSolid', checkboxAttrs)),
+					newTd(newDataCheckbox(tileAttr, 'isPlayerEnd', checkboxAttrs)),
+					newTd(newDataCheckbox(tileAttr, 'isPlayerStart', checkboxAttrs))
 				)
 			);
 			
-			const closePopupButton = h('button', {}, 'Close popup');
-			closePopupButton.addEventListener('click', () => tileAttrsDialog.close());
+			const closePopupButton = h('button', {'@click': () => tileAttrsDialog.close() }, 'Close popup');
 				
 			const popupHeader = h('h4', {}, 
 				'Tile Attributes (W.I.P)',
