@@ -20,5 +20,30 @@
 		return el
 	};
 	
-	window.elFactory = elFactory;
+	const h = elFactory;
+	
+	const newTd = (...children) => h('td', {}, ...children);
+	const newDiv = (...children) => h('div', {}, ...children);
+	
+	const newInput = (type, attributes) => h('input', { type, ...attributes });
+	const newCheckbox = attributes => newInput('checkbox', { ...attributes });
+	
+	const newDataCheckbox = (object, attrName, attributes = {}) => {
+		const checkbox = newCheckbox(attributes);
+		
+		checkbox.checked = object[attrName];
+		checkbox.addEventListener('click', e => {
+			const target = e.target || e.srcElement;					
+			object[attrName] = target.checked;
+			console.log('Clicked on checkbox', { checked: target.checked, object });					
+		});
+		
+		return checkbox;
+	}
+	
+	window.DomUtil = {
+		h, newTd, newDiv, 
+		newInput, newCheckbox,
+		newDataCheckbox
+	};
 })();
