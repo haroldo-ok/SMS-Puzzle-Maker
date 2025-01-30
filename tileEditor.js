@@ -496,12 +496,15 @@ var tinyMapEditor = (function() {
 				)
 			);
 			
+			const popupHeader = h('h3', {}, 'Tile Attributes (W.I.P)');
+			
 			const table = h('table', {}, 
 				h('tr', {}, ...headerRow),
 				...dataRows
 			);
 			
 			tileAttrsDialog.innerHTML = '';
+			tileAttrsDialog.appendChild(popupHeader);
 			tileAttrsDialog.appendChild(table);
 			tileAttrsDialog.showModal();
 		},
