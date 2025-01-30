@@ -466,11 +466,22 @@ var tinyMapEditor = (function() {
 			
 			const h = elFactory;
 			
+			const createTd = (...children) => h('td', {}, ...children);
+			const createDiv = (...children) => h('div', {}, ...children);
+			
 			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?']
-				.map(name => h('th', {}, name));
+				.map(name => h('th', {}, name));				
+				
+			const dataRows = tileAttrs.map(tileAttr => 
+				h('tr', {}, 
+					createTd('' + tileAttr.tileIndex),
+					createTd('...')
+				)
+			);
 			
 			const table = h('table', {}, 
-				h('tr', {}, ...headerRow)
+				h('tr', {}, ...headerRow),
+				...dataRows
 			);
 			
 			tileAttrsDialog.innerHTML = '';
