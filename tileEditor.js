@@ -477,7 +477,7 @@ var tinyMapEditor = (function() {
 				const individualTileCanvas = h('canvas', { 
 					width: tileSize, 
 					height: tileSize,
-					style: `zoom: ${tileZoom}`
+					style: `width: ${tileSize}px; zoom: ${tileZoom}`
 				});
 				
 				const individualTileCtx = individualTileCanvas.getContext('2d');
