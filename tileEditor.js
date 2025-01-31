@@ -471,13 +471,28 @@ var tinyMapEditor = (function() {
 			}
 			const checkboxAttrs = { '@afterclick': handleCheckboxAfterClick };
 			
+			const generateSingleTileCanvas = tileIndex => {
+				const localSrcTile = this.getSrcTileCoordByIndex(tileIndex);
+				
+				const individualTileCanvas = h('canvas', { 
+					width: tileSize, 
+					height: tileSize,
+					style: `width: ${tileSize}px; zoom: ${tileZoom}`
+				});
+				
+				const individualTileCtx = individualTileCanvas.getContext('2d');
+				this.setTileByCoord(0, 0, localSrcTile, individualTileCtx);
+				
+				return individualTileCanvas;
+			}
+			
 			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?']
-				.map(name => h('th', {}, name));				
+				.map(name => h('th', {}, name));			
 				
 			const dataRows = tileAttrs.map(tileAttr => 
 				h('tr', {}, 
 					newTd('' + tileAttr.tileIndex),
-					newTd('...'),
+					newTd(generateSingleTileCanvas(tileAttr.tileIndex)),
 					newTd(newDataCheckbox(tileAttr, 'isSolid', checkboxAttrs)),
 					newTd(newDataCheckbox(tileAttr, 'isPlayerEnd', checkboxAttrs)),
 					newTd(newDataCheckbox(tileAttr, 'isPlayerStart', checkboxAttrs))
