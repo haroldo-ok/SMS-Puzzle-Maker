@@ -457,9 +457,12 @@ var tinyMapEditor = (function() {
 				cleanedUpAttr.tileIndex = index + 1;
 				tileAttrs[index] = cleanedUpAttr;
 			});
-
-			console.log('tileAttrs', tileAttrs);
 		},
+
+        saveTileAttrs : function() {			
+			this.prepareTileAttrsStructure();
+			storage.put('tileAttrs', tileAttrs);
+        },
 		
 		showTileAttrsPopup : function() {
 			this.prepareTileAttrsStructure();
@@ -467,7 +470,7 @@ var tinyMapEditor = (function() {
 			const { h, newTd, newDataCheckbox } = DomUtil;
 						
 			const handleCheckboxAfterClick = result => {
-				console.log('Clicked on checkbox', result);
+				this.saveTileAttrs();
 			}
 			const checkboxAttrs = { '@afterclick': handleCheckboxAfterClick };
 			
@@ -494,8 +497,8 @@ var tinyMapEditor = (function() {
 					newTd('' + tileAttr.tileIndex),
 					newTd(generateSingleTileCanvas(tileAttr.tileIndex)),
 					newTd(newDataCheckbox(tileAttr, 'isSolid', checkboxAttrs)),
-					newTd(newDataCheckbox(tileAttr, 'isPlayerEnd', checkboxAttrs)),
-					newTd(newDataCheckbox(tileAttr, 'isPlayerStart', checkboxAttrs))
+					newTd(newDataCheckbox(tileAttr, 'isPlayerStart', checkboxAttrs)),
+					newTd(newDataCheckbox(tileAttr, 'isPlayerEnd', checkboxAttrs))
 				)
 			);
 			
