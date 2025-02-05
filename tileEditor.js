@@ -526,6 +526,7 @@ var tinyMapEditor = (function() {
 		
 		generateProjectObject : function() {
 			this.saveCurrentMapToMapList();
+			this.prepareTileAttrsStructure();
 			
 			return {
 				tool: {
@@ -543,6 +544,7 @@ var tinyMapEditor = (function() {
 				tileSet: {
 					name: tileSetName,
 					src: sprite.src,
+					attributes: tileAttrs,
 					forMasterSystem: tileSetForSms
 				}
 			};
