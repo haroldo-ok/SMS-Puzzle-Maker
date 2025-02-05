@@ -463,6 +463,11 @@ var tinyMapEditor = (function() {
 			this.prepareTileAttrsStructure();
 			storage.put('tileAttrs', tileAttrs);
         },
+
+        loadTileAttrs : function() {
+			tileAttrs = storage.get('tileAttrs');
+			this.prepareTileAttrsStructure();
+        },
 		
 		showTileAttrsPopup : function() {
 			this.prepareTileAttrsStructure();
@@ -743,6 +748,8 @@ var tinyMapEditor = (function() {
 			const storedTileSet = storage.get('tileSet');
 			tileSetName = storedTileSet && storedTileSet.name || 'Unnamed';
 			tileSetForSms = storedTileSet && storedTileSet.forMasterSystem;
+			
+			this.loadTileAttrs();
 			
 			let storedSrc = storedTileSet && storedTileSet.src || 'assets/default_tilemap.png';
 			if (storedSrc.startsWith('http:') || storedSrc.startsWith('https:')) {
