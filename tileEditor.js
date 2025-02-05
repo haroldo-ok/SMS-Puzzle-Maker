@@ -457,9 +457,16 @@ var tinyMapEditor = (function() {
 				cleanedUpAttr.tileIndex = index + 1;
 				tileAttrs[index] = cleanedUpAttr;
 			});
-
-			console.log('tileAttrs', tileAttrs);
 		},
+
+        saveTileAttrs : function() {			
+			storage.put('tileAttrs', tileAttrs);
+        },
+
+        loadTileAttrs : function() {
+			tileAttrs = storage.get('tileAttrs');
+			this.prepareTileAttrsStructure();
+        },
 		
 		showTileAttrsPopup : function() {
 			this.prepareTileAttrsStructure();
@@ -467,7 +474,7 @@ var tinyMapEditor = (function() {
 			const { h, newTd, newDataCheckbox } = DomUtil;
 						
 			const handleCheckboxAfterClick = result => {
-				console.log('Clicked on checkbox', result);
+				this.saveTileAttrs();
 			}
 			const checkboxAttrs = { '@afterclick': handleCheckboxAfterClick };
 			
@@ -494,8 +501,8 @@ var tinyMapEditor = (function() {
 					newTd('' + tileAttr.tileIndex),
 					newTd(generateSingleTileCanvas(tileAttr.tileIndex)),
 					newTd(newDataCheckbox(tileAttr, 'isSolid', checkboxAttrs)),
-					newTd(newDataCheckbox(tileAttr, 'isPlayerEnd', checkboxAttrs)),
-					newTd(newDataCheckbox(tileAttr, 'isPlayerStart', checkboxAttrs))
+					newTd(newDataCheckbox(tileAttr, 'isPlayerStart', checkboxAttrs)),
+					newTd(newDataCheckbox(tileAttr, 'isPlayerEnd', checkboxAttrs))
 				)
 			);
 			
@@ -740,6 +747,8 @@ var tinyMapEditor = (function() {
 			const storedTileSet = storage.get('tileSet');
 			tileSetName = storedTileSet && storedTileSet.name || 'Unnamed';
 			tileSetForSms = storedTileSet && storedTileSet.forMasterSystem;
+			
+			this.loadTileAttrs();
 			
 			let storedSrc = storedTileSet && storedTileSet.src || 'assets/default_tilemap.png';
 			if (storedSrc.startsWith('http:') || storedSrc.startsWith('https:')) {
