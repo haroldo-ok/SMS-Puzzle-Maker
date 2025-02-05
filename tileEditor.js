@@ -460,7 +460,6 @@ var tinyMapEditor = (function() {
 		},
 
         saveTileAttrs : function() {			
-			this.prepareTileAttrsStructure();
 			storage.put('tileAttrs', tileAttrs);
         },
 
