@@ -577,7 +577,12 @@ var tinyMapEditor = (function() {
 			this.selectMapById(project.maps[0].id);
 			this.saveMap();
 			
-			storage.put('tileSet', project.tileSet);
+			const { attributes, ...otherTilesetData } = project.tileSet;
+			storage.put('tileSet', otherTilesetData);
+			
+			tileAttrs = attributes;
+			this.prepareTileAttrsStructure();
+			this.saveTileAttrs();
 
 			this.destroy();
 			this.init();
