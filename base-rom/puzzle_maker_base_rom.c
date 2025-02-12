@@ -104,6 +104,12 @@ char get_map_tile(resource_map_format *map, char x, char y) {
 	return *(map->tiles + (y * map->width) + x);
 }
 
+unsigned int get_tile_attr(char tile_number) {
+	if (!tile_number) tile_number = 1;
+	unsigned int *tile_attr_p = resource_get_pointer(tile_attrs);
+	return tile_attr_p[tile_number - 1];	
+}
+
 resource_map_format *load_map(int n) {
 	char map_file_name[14];
 	sprintf(map_file_name, "level%03d.map", n);
@@ -142,10 +148,7 @@ void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char d
 	char new_y = y + delta_y;
 	
 	char tile = get_map_tile(map, new_x, new_y);
-	unsigned int *tile_attr_p = resource_get_pointer(tile_attrs);
-	unsigned int tile_attr = tile_attr_p[tile - 1];	
-	SMS_setNextTileatXY(2, 3);
-	printf("T=%d,A=%d,P=%d       ", tile, tile_attr, tile_attr_p);
+	unsigned int tile_attr = get_tile_attr(tile);	
 	if (tile_attr & TILE_ATTR_SOLID) return;
 	
 	set_actor_map_xy(act, new_x, new_y);
