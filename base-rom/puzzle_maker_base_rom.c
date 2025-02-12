@@ -142,7 +142,10 @@ void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char d
 	char new_y = y + delta_y;
 	
 	char tile = get_map_tile(map, new_x, new_y);
-	unsigned int tile_attr = resource_get_pointer(tile_attrs)[tile - 1];	
+	unsigned int *tile_attr_p = resource_get_pointer(tile_attrs);
+	unsigned int tile_attr = tile_attr_p[tile - 1];	
+	SMS_setNextTileatXY(2, 3);
+	printf("T=%d,A=%d,P=%d       ", tile, tile_attr, tile_attr_p);
 	if (tile_attr & TILE_ATTR_SOLID) return;
 	
 	set_actor_map_xy(act, new_x, new_y);
@@ -205,8 +208,7 @@ char handle_title() {
 		puts("Press button to view next map");
 
 		SMS_setNextTileatXY(2, 2);
-		printf("%d", tile_attrs);
-		//puts(map->name);
+		puts(map->name);
 
 		SMS_setNextTileatXY(22, 3);
 		puts("next ===>");
