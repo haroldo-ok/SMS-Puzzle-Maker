@@ -44,6 +44,8 @@ typedef struct resource_map_format {
 const resource_header_format *resource_header = RESOURCE_BASE_ADDR;
 const resource_entry_format *resource_entries = RESOURCE_BASE_ADDR + sizeof(resource_header_format);
 
+resource_entry_format *tile_attrs;
+
 resource_entry_format *resource_find(char *name) {
 	SMS_mapROMBank(RESOURCE_BANK);
 
@@ -187,6 +189,8 @@ char handle_title() {
 		SMS_loadBGPalette(resource_get_pointer(resource_find("main.pal")));
 		SMS_loadTiles(resource_get_pointer(resource_find("main.til")), 4, 256 * 32);
 		
+		tile_attrs = resource_find("main.atr");
+		
 		resource_map_format *map = load_map(map_number);
 		if (!map) {
 			map_number = 1;
@@ -198,7 +202,8 @@ char handle_title() {
 		puts("Press button to view next map");
 
 		SMS_setNextTileatXY(2, 2);
-		puts(map->name);
+		printf("%d", tile_attrs);
+		//puts(map->name);
 
 		SMS_setNextTileatXY(22, 3);
 		puts("next ===>");
