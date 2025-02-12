@@ -146,6 +146,7 @@ void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char d
 	
 	char new_x = x + delta_x;
 	char new_y = y + delta_y;
+	if (new_x >= map->width || new_y >= map->height) return;
 	
 	char tile = get_map_tile(map, new_x, new_y);
 	unsigned int tile_attr = get_tile_attr(tile);	
