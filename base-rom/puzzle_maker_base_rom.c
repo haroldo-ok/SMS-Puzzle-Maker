@@ -19,6 +19,8 @@
 
 #define MAP_SCREEN_Y (6)
 
+#define TILE_ATTR_SOLID (0x0001)
+
 actor player;
 
 typedef struct resource_header_format {
@@ -139,8 +141,9 @@ void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char d
 	char new_x = x + delta_x;
 	char new_y = y + delta_y;
 	
-	char tile = get_map_tile(map, new_x, new_y);	
-	if (tile > 3) return;
+	char tile = get_map_tile(map, new_x, new_y);
+	unsigned int tile_attr = resource_get_pointer(tile_attrs)[tile - 1];	
+	if (tile_attr & TILE_ATTR_SOLID) return;
 	
 	set_actor_map_xy(act, new_x, new_y);
 }
