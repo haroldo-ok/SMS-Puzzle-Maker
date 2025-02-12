@@ -19,6 +19,10 @@
 
 #define MAP_SCREEN_Y (6)
 
+#define TILE_ATTR_SOLID (0x0001)
+#define TILE_ATTR_PLAYER_START (0x0002)
+#define TILE_ATTR_PLAYER_END (0x0004)
+
 actor player;
 
 typedef struct resource_header_format {
@@ -43,6 +47,8 @@ typedef struct resource_map_format {
 
 const resource_header_format *resource_header = RESOURCE_BASE_ADDR;
 const resource_entry_format *resource_entries = RESOURCE_BASE_ADDR + sizeof(resource_header_format);
+
+resource_entry_format *tile_attrs;
 
 resource_entry_format *resource_find(char *name) {
 	SMS_mapROMBank(RESOURCE_BANK);
@@ -100,6 +106,12 @@ char get_map_tile(resource_map_format *map, char x, char y) {
 	return *(map->tiles + (y * map->width) + x);
 }
 
+unsigned int get_tile_attr(char tile_number) {
+	if (!tile_number) tile_number = 1;
+	unsigned int *tile_attr_p = resource_get_pointer(tile_attrs);
+	return tile_attr_p[tile_number - 1];	
+}
+
 resource_map_format *load_map(int n) {
 	char map_file_name[14];
 	sprintf(map_file_name, "level%03d.map", n);
@@ -136,9 +148,11 @@ void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char d
 	
 	char new_x = x + delta_x;
 	char new_y = y + delta_y;
+	if (new_x >= map->width || new_y >= map->height) return;
 	
-	char tile = get_map_tile(map, new_x, new_y);	
-	if (tile > 3) return;
+	char tile = get_map_tile(map, new_x, new_y);
+	unsigned int tile_attr = get_tile_attr(tile);	
+	if (tile_attr & TILE_ATTR_SOLID) return;
 	
 	set_actor_map_xy(act, new_x, new_y);
 }
@@ -147,7 +161,8 @@ void player_find_start(resource_map_format *map) {
 	char *o = map->tiles;
 	for (char y = 0; y != map->height; y++) {
 		for (char x = 0; x != map->width; x++) {
-			if (*o == 2) {
+			unsigned int tile_attr = get_tile_attr(*o);
+			if (tile_attr & TILE_ATTR_PLAYER_START) {
 				set_actor_map_xy(&player, x, y);
 			}
 			o++;
@@ -186,6 +201,8 @@ char handle_title() {
 		
 		SMS_loadBGPalette(resource_get_pointer(resource_find("main.pal")));
 		SMS_loadTiles(resource_get_pointer(resource_find("main.til")), 4, 256 * 32);
+		
+		tile_attrs = resource_find("main.atr");
 		
 		resource_map_format *map = load_map(map_number);
 		if (!map) {
@@ -278,6 +295,6 @@ void main() {
 }
 
 SMS_EMBED_SEGA_ROM_HEADER(9999,0); // code 9999 hopefully free, here this means 'homebrew'
-SMS_EMBED_SDSC_HEADER(0,2, 2025,01,23, "Haroldo-OK\\2025", "SMS-Puzzle-Maker base ROM",
+SMS_EMBED_SDSC_HEADER(0,2, 2025,02,11, "Haroldo-OK\\2025", "SMS-Puzzle-Maker base ROM",
   "Made for SMS-Puzzle-Maker - https://github.com/haroldo-ok/SMS-Puzzle-Maker.\n"
   "Built using devkitSMS & SMSlib - https://github.com/sverx/devkitSMS");

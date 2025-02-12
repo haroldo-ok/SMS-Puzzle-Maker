@@ -65,10 +65,17 @@
 					..._.flatten(tileIndexes)
 				]
 			}));
+			
+			const tileAttributes = project.tileSet.attributes
+				.map(attr => {
+					return ['isSolid', 'isPlayerStart', 'isPlayerEnd']
+						.reduce((acc, key, idx) => acc | ((attr[key] ? 1 : 0) << idx), 0);
+				});
 				
 			return {
 				palette,
 				tileSet: _.flatten(tileSet),
+				tileAttributes: _.flatten(tileAttributes.map(toBytePair)),
 				maps
 			};
 		},
@@ -83,6 +90,7 @@
 			return {
 				'main.pal': padArrayEnd(obj.palette, 16, 0),
 				'main.til': obj.tileSet,
+				'main.atr': obj.tileAttributes,
 				...maps
 			};			
 		},
