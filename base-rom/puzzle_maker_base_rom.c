@@ -20,6 +20,8 @@
 #define MAP_SCREEN_Y (6)
 
 #define TILE_ATTR_SOLID (0x0001)
+#define TILE_ATTR_PLAYER_START (0x0002)
+#define TILE_ATTR_PLAYER_END (0x0004)
 
 actor player;
 
@@ -159,7 +161,8 @@ void player_find_start(resource_map_format *map) {
 	char *o = map->tiles;
 	for (char y = 0; y != map->height; y++) {
 		for (char x = 0; x != map->width; x++) {
-			if (*o == 2) {
+			unsigned int tile_attr = get_tile_attr(*o);
+			if (tile_attr & TILE_ATTR_PLAYER_START) {
 				set_actor_map_xy(&player, x, y);
 			}
 			o++;
