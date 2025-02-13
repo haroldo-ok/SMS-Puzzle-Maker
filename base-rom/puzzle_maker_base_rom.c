@@ -49,6 +49,7 @@ const resource_header_format *resource_header = RESOURCE_BASE_ADDR;
 const resource_entry_format *resource_entries = RESOURCE_BASE_ADDR + sizeof(resource_header_format);
 
 resource_entry_format *tile_attrs;
+char stage_clear;
 
 resource_entry_format *resource_find(char *name) {
 	SMS_mapROMBank(RESOURCE_BANK);
@@ -152,6 +153,8 @@ void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char d
 	
 	char tile = get_map_tile(map, new_x, new_y);
 	unsigned int tile_attr = get_tile_attr(tile);	
+
+	if (tile_attr & TILE_ATTR_PLAYER_END) stage_clear = 1;
 	if (tile_attr & TILE_ATTR_SOLID) return;
 	
 	set_actor_map_xy(act, new_x, new_y);
@@ -212,7 +215,7 @@ char handle_title() {
 		draw_map(map);
 
 		SMS_setNextTileatXY(2, 1);
-		puts("Press button to view next map");
+		puts("Press button to skip map");
 
 		SMS_setNextTileatXY(2, 2);
 		puts(map->name);
@@ -226,9 +229,10 @@ char handle_title() {
 		init_actor(&player, 32, 32, 2, 1, 8, 2);
 		player_find_start(map);
 
+		stage_clear = 0;
 		
-		// Wait button press
 		do {
+			// Wait button press
 			if (joy_delay) joy_delay--;
 			if (!joy_delay || joy != joy_prev) {
 				char ply_map_x = get_actor_map_x(&player);
@@ -256,7 +260,7 @@ char handle_title() {
 			
 			joy_prev = joy;
 			joy = SMS_getKeysStatus();
-		} while (!(joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
+		} while (!stage_clear && !(joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
 		
 		map_number++;
 
