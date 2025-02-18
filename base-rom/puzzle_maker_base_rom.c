@@ -22,6 +22,7 @@
 #define TILE_ATTR_SOLID (0x0001)
 #define TILE_ATTR_PLAYER_START (0x0002)
 #define TILE_ATTR_PLAYER_END (0x0004)
+#define TILE_ATTR_PUSHABLE (0x0008)
 
 actor player;
 
@@ -155,7 +156,12 @@ void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char d
 	unsigned int tile_attr = get_tile_attr(tile);	
 
 	if (tile_attr & TILE_ATTR_PLAYER_END) stage_clear = 1;
-	if (tile_attr & TILE_ATTR_SOLID) return;
+	
+	if (tile_attr & TILE_ATTR_PUSHABLE) {
+		
+	} else if (tile_attr & TILE_ATTR_SOLID) {
+		return;
+	}
 	
 	set_actor_map_xy(act, new_x, new_y);
 }
