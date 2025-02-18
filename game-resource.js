@@ -68,7 +68,7 @@
 			
 			const tileAttributes = project.tileSet.attributes
 				.map(attr => {
-					return ['isSolid', 'isPlayerStart', 'isPlayerEnd']
+					return ['isSolid', 'isPlayerStart', 'isPlayerEnd', 'isPushable']
 						.reduce((acc, key, idx) => acc | ((attr[key] ? 1 : 0) << idx), 0);
 				});
 				

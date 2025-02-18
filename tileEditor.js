@@ -57,7 +57,8 @@ var tinyMapEditor = (function() {
 		tileIndex: 0,
 		isSolid: false,
 		isPlayerStart: false,
-		isPlayerEnd: false
+		isPlayerEnd: false,
+		isPushable: false
 	};
 	
 	const DEFAULT_TILE_ATTRS = [
@@ -493,16 +494,17 @@ var tinyMapEditor = (function() {
 				return individualTileCanvas;
 			}
 			
-			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?']
+			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?', 'Can be pushed?']
 				.map(name => h('th', {}, name));			
 				
 			const dataRows = tileAttrs.map(tileAttr => 
 				h('tr', {}, 
 					newTd('' + tileAttr.tileIndex),
 					newTd(generateSingleTileCanvas(tileAttr.tileIndex)),
-					newTd(newDataCheckbox(tileAttr, 'isSolid', checkboxAttrs)),
-					newTd(newDataCheckbox(tileAttr, 'isPlayerStart', checkboxAttrs)),
-					newTd(newDataCheckbox(tileAttr, 'isPlayerEnd', checkboxAttrs))
+					newTd(newDataCheckbox(tileAttr, 'isSolid', { ...checkboxAttrs, title: `Is tile ${tileAttr.tileIndex} solid?` })),
+					newTd(newDataCheckbox(tileAttr, 'isPlayerStart', { ...checkboxAttrs, title: `Is tile ${tileAttr.tileIndex} a player start?` })),
+					newTd(newDataCheckbox(tileAttr, 'isPlayerEnd', { ...checkboxAttrs, title: `Is tile ${tileAttr.tileIndex} a player end?` })),
+					newTd(newDataCheckbox(tileAttr, 'isPushable', { ...checkboxAttrs, title: `Can tile ${tileAttr.tileIndex} be pushed?` }))
 				)
 			);
 			
