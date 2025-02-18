@@ -57,7 +57,8 @@ var tinyMapEditor = (function() {
 		tileIndex: 0,
 		isSolid: false,
 		isPlayerStart: false,
-		isPlayerEnd: false
+		isPlayerEnd: false,
+		isPushable: false
 	};
 	
 	const DEFAULT_TILE_ATTRS = [
@@ -493,7 +494,7 @@ var tinyMapEditor = (function() {
 				return individualTileCanvas;
 			}
 			
-			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?']
+			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?', 'Can be pushed?']
 				.map(name => h('th', {}, name));			
 				
 			const dataRows = tileAttrs.map(tileAttr => 
@@ -502,7 +503,8 @@ var tinyMapEditor = (function() {
 					newTd(generateSingleTileCanvas(tileAttr.tileIndex)),
 					newTd(newDataCheckbox(tileAttr, 'isSolid', checkboxAttrs)),
 					newTd(newDataCheckbox(tileAttr, 'isPlayerStart', checkboxAttrs)),
-					newTd(newDataCheckbox(tileAttr, 'isPlayerEnd', checkboxAttrs))
+					newTd(newDataCheckbox(tileAttr, 'isPlayerEnd', checkboxAttrs)),
+					newTd(newDataCheckbox(tileAttr, 'isPushable', checkboxAttrs))
 				)
 			);
 			
