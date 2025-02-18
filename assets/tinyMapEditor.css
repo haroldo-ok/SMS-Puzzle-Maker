@@ -59,7 +59,15 @@ textarea { width: 400px; height: 200px; margin: 0; font-family: monospace }
 .scrollable { overflow: auto }
 
 /*************************************** Tile Attr Dialog */
+#tileAttrsDialog tr {
+	transition: background 0.3s;
+}
+
 #tileAttrsDialog th,
 #tileAttrsDialog td {
 	text-align: center;
+}
+
+#tileAttrsDialog tr:hover {
+	background: #cccccc;
 }
