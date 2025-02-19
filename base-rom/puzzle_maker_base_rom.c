@@ -159,6 +159,25 @@ void set_actor_map_xy(actor *act, char x, char y) {
 	act->y = (y << 4) + (MAP_SCREEN_Y << 3);
 }
 
+char try_pushing_tile_on_map(resource_map_format *map, char x, char y, signed char delta_x, signed char delta_y) {
+	char new_x = x + delta_x;
+	char new_y = y + delta_y;
+	if (new_x >= map->width || new_y >= map->height) return 0;
+
+	char target_tile = get_map_tile(map, new_x, new_y);
+	unsigned int target_tile_attr = get_tile_attr(target_tile);	
+	
+	if (target_tile_attr & TILE_ATTR_SOLID) return 0;
+
+	char source_tile = get_map_tile(map, x, y);
+	
+	set_map_tile(map, x, y, 1);
+	set_map_tile(map, new_x, new_y, source_tile);
+	is_map_data_dirty = 1;
+	
+	return 1;
+}
+
 void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char delta_x, signed char delta_y) {
 	char x = get_actor_map_x(act);
 	char y = get_actor_map_y(act);
@@ -173,8 +192,7 @@ void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char d
 	if (tile_attr & TILE_ATTR_PLAYER_END) stage_clear = 1;
 	
 	if (tile_attr & TILE_ATTR_PUSHABLE) {
-		set_map_tile(map, new_x, new_y, 1);
-		is_map_data_dirty = 1;
+		if (!try_pushing_tile_on_map(map, new_x, new_y, delta_x, delta_y)) return;
 	} else if (tile_attr & TILE_ATTR_SOLID) {
 		return;
 	}
