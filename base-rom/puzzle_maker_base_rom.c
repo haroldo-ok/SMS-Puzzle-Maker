@@ -22,6 +22,7 @@
 #define TILE_ATTR_SOLID (0x0001)
 #define TILE_ATTR_PLAYER_START (0x0002)
 #define TILE_ATTR_PLAYER_END (0x0004)
+#define TILE_ATTR_PUSHABLE (0x0008)
 
 actor player;
 
@@ -50,6 +51,9 @@ const resource_entry_format *resource_entries = RESOURCE_BASE_ADDR + sizeof(reso
 
 resource_entry_format *tile_attrs;
 char stage_clear;
+
+char map_data[9*16], map_floor[9*16];
+char is_map_data_dirty;
 
 resource_entry_format *resource_find(char *name) {
 	SMS_mapROMBank(RESOURCE_BANK);
@@ -103,8 +107,24 @@ void draw_tile(char x, char y, unsigned int tileNumber) {
 	SMS_setTile(sms_tile + 3);
 }
 
+inline char *get_map_tile_pointer(resource_map_format *map, char *data, char x, char y) {
+	return data + (y * map->width) + x;
+}
+
 char get_map_tile(resource_map_format *map, char x, char y) {
-	return *(map->tiles + (y * map->width) + x);
+	return *(get_map_tile_pointer(map, map_data, x, y));
+}
+
+void set_map_tile(resource_map_format *map, char x, char y, char new_value) {
+	*(get_map_tile_pointer(map, map_data, x, y)) = new_value;
+}
+
+char get_floor_tile(resource_map_format *map, char x, char y) {
+	return *(get_map_tile_pointer(map, map_floor, x, y));
+}
+
+void set_floor_tile(resource_map_format *map, char x, char y, char new_value) {
+	*(get_map_tile_pointer(map, map_floor, x, y)) = new_value;
 }
 
 unsigned int get_tile_attr(char tile_number) {
@@ -120,8 +140,13 @@ resource_map_format *load_map(int n) {
 	return map;
 }
 
+void prepare_map_data(resource_map_format *map) {
+	memcpy(map_data, map->tiles, map->height * map->width);
+	memcpy(map_floor, 0, map->height * map->width);
+}
+
 void draw_map(resource_map_format *map) {
-	char *o = map->tiles;
+	char *o = map_data;
 	for (char y = 0; y != map->height; y++) {
 		for (char x = 0; x != map->width; x++) {
 			draw_tile(x << 1, y << 1, *o);
@@ -143,6 +168,29 @@ void set_actor_map_xy(actor *act, char x, char y) {
 	act->y = (y << 4) + (MAP_SCREEN_Y << 3);
 }
 
+char try_pushing_tile_on_map(resource_map_format *map, char x, char y, signed char delta_x, signed char delta_y) {
+	char new_x = x + delta_x;
+	char new_y = y + delta_y;
+	if (new_x >= map->width || new_y >= map->height) return 0;
+
+	char target_tile = get_map_tile(map, new_x, new_y);
+	unsigned int target_tile_attr = get_tile_attr(target_tile);	
+	
+	if (target_tile_attr & TILE_ATTR_SOLID) return 0;
+
+	char source_tile = get_map_tile(map, x, y);	
+	char source_floor_tile = get_floor_tile(map, x, y);
+	
+	set_map_tile(map, x, y, source_floor_tile ? source_floor_tile : 1);
+	set_map_tile(map, new_x, new_y, source_tile);
+	
+	set_floor_tile(map, new_x, new_y, target_tile);
+
+	is_map_data_dirty = 1;
+	
+	return 1;
+}
+
 void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char delta_x, signed char delta_y) {
 	char x = get_actor_map_x(act);
 	char y = get_actor_map_y(act);
@@ -155,7 +203,12 @@ void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char d
 	unsigned int tile_attr = get_tile_attr(tile);	
 
 	if (tile_attr & TILE_ATTR_PLAYER_END) stage_clear = 1;
-	if (tile_attr & TILE_ATTR_SOLID) return;
+	
+	if (tile_attr & TILE_ATTR_PUSHABLE) {
+		if (!try_pushing_tile_on_map(map, new_x, new_y, delta_x, delta_y)) return;
+	} else if (tile_attr & TILE_ATTR_SOLID) {
+		return;
+	}
 	
 	set_actor_map_xy(act, new_x, new_y);
 }
@@ -212,6 +265,7 @@ char handle_title() {
 			map_number = 1;
 			map = load_map(map_number);
 		}
+		prepare_map_data(map);
 		draw_map(map);
 
 		SMS_setNextTileatXY(2, 1);
@@ -230,6 +284,7 @@ char handle_title() {
 		player_find_start(map);
 
 		stage_clear = 0;
+		is_map_data_dirty = 0;
 		
 		do {
 			// Wait button press
@@ -257,6 +312,8 @@ char handle_title() {
 			
 			SMS_waitForVBlank();
 			SMS_copySpritestoSAT();	
+			
+			if (is_map_data_dirty) draw_map(map);
 			
 			joy_prev = joy;
 			joy = SMS_getKeysStatus();
@@ -299,6 +356,6 @@ void main() {
 }
 
 SMS_EMBED_SEGA_ROM_HEADER(9999,0); // code 9999 hopefully free, here this means 'homebrew'
-SMS_EMBED_SDSC_HEADER(0,3, 2025,02,13, "Haroldo-OK\\2025", "SMS-Puzzle-Maker base ROM",
+SMS_EMBED_SDSC_HEADER(0,4, 2025,02,18, "Haroldo-OK\\2025", "SMS-Puzzle-Maker base ROM",
   "Made for SMS-Puzzle-Maker - https://github.com/haroldo-ok/SMS-Puzzle-Maker.\n"
   "Built using devkitSMS & SMSlib - https://github.com/sverx/devkitSMS");
