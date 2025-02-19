@@ -52,7 +52,7 @@ const resource_entry_format *resource_entries = RESOURCE_BASE_ADDR + sizeof(reso
 resource_entry_format *tile_attrs;
 char stage_clear;
 
-char map_data[9*16];
+char map_data[9*16], map_floor[9*16];
 char is_map_data_dirty;
 
 resource_entry_format *resource_find(char *name) {
@@ -107,16 +107,24 @@ void draw_tile(char x, char y, unsigned int tileNumber) {
 	SMS_setTile(sms_tile + 3);
 }
 
-inline char *get_map_tile_pointer(resource_map_format *map, char x, char y) {
-	return map_data + (y * map->width) + x;
+inline char *get_map_tile_pointer(resource_map_format *map, char *data, char x, char y) {
+	return data + (y * map->width) + x;
 }
 
 char get_map_tile(resource_map_format *map, char x, char y) {
-	return *(get_map_tile_pointer(map, x, y));
+	return *(get_map_tile_pointer(map, map_data, x, y));
 }
 
 void set_map_tile(resource_map_format *map, char x, char y, char new_value) {
-	*(get_map_tile_pointer(map, x, y)) = new_value;
+	*(get_map_tile_pointer(map, map_data, x, y)) = new_value;
+}
+
+char get_floor_tile(resource_map_format *map, char x, char y) {
+	return *(get_map_tile_pointer(map, map_floor, x, y));
+}
+
+void set_floor_tile(resource_map_format *map, char x, char y, char new_value) {
+	*(get_map_tile_pointer(map, map_floor, x, y)) = new_value;
 }
 
 unsigned int get_tile_attr(char tile_number) {
@@ -134,6 +142,7 @@ resource_map_format *load_map(int n) {
 
 void prepare_map_data(resource_map_format *map) {
 	memcpy(map_data, map->tiles, map->height * map->width);
+	memcpy(map_floor, 0, map->height * map->width);
 }
 
 void draw_map(resource_map_format *map) {
@@ -169,10 +178,14 @@ char try_pushing_tile_on_map(resource_map_format *map, char x, char y, signed ch
 	
 	if (target_tile_attr & TILE_ATTR_SOLID) return 0;
 
-	char source_tile = get_map_tile(map, x, y);
+	char source_tile = get_map_tile(map, x, y);	
+	char source_floor_tile = get_floor_tile(map, x, y);
 	
-	set_map_tile(map, x, y, 1);
+	set_map_tile(map, x, y, source_floor_tile ? source_floor_tile : 1);
 	set_map_tile(map, new_x, new_y, source_tile);
+	
+	set_floor_tile(map, new_x, new_y, target_tile);
+
 	is_map_data_dirty = 1;
 	
 	return 1;
