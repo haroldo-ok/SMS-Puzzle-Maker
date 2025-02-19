@@ -52,6 +52,8 @@ const resource_entry_format *resource_entries = RESOURCE_BASE_ADDR + sizeof(reso
 resource_entry_format *tile_attrs;
 char stage_clear;
 
+char map_data[9*16];
+
 resource_entry_format *resource_find(char *name) {
 	SMS_mapROMBank(RESOURCE_BANK);
 
@@ -121,8 +123,12 @@ resource_map_format *load_map(int n) {
 	return map;
 }
 
+void prepare_map_data(resource_map_format *map) {
+	memcpy(map_data, map->tiles, map->height * map->width);
+}
+
 void draw_map(resource_map_format *map) {
-	char *o = map->tiles;
+	char *o = map_data;
 	for (char y = 0; y != map->height; y++) {
 		for (char x = 0; x != map->width; x++) {
 			draw_tile(x << 1, y << 1, *o);
@@ -218,6 +224,7 @@ char handle_title() {
 			map_number = 1;
 			map = load_map(map_number);
 		}
+		prepare_map_data(map);
 		draw_map(map);
 
 		SMS_setNextTileatXY(2, 1);
