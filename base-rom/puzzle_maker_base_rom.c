@@ -53,6 +53,7 @@ resource_entry_format *tile_attrs;
 char stage_clear;
 
 char map_data[9*16];
+char is_map_data_dirty;
 
 resource_entry_format *resource_find(char *name) {
 	SMS_mapROMBank(RESOURCE_BANK);
@@ -106,8 +107,16 @@ void draw_tile(char x, char y, unsigned int tileNumber) {
 	SMS_setTile(sms_tile + 3);
 }
 
+inline char *get_map_tile_pointer(resource_map_format *map, char x, char y) {
+	return map_data + (y * map->width) + x;
+}
+
 char get_map_tile(resource_map_format *map, char x, char y) {
-	return *(map->tiles + (y * map->width) + x);
+	return *(get_map_tile_pointer(map, x, y));
+}
+
+void set_map_tile(resource_map_format *map, char x, char y, char new_value) {
+	*(get_map_tile_pointer(map, x, y)) = new_value;
 }
 
 unsigned int get_tile_attr(char tile_number) {
@@ -164,7 +173,8 @@ void try_moving_actor_on_map(actor *act, resource_map_format *map, signed char d
 	if (tile_attr & TILE_ATTR_PLAYER_END) stage_clear = 1;
 	
 	if (tile_attr & TILE_ATTR_PUSHABLE) {
-		
+		set_map_tile(map, new_x, new_y, 1);
+		is_map_data_dirty = 1;
 	} else if (tile_attr & TILE_ATTR_SOLID) {
 		return;
 	}
@@ -243,6 +253,7 @@ char handle_title() {
 		player_find_start(map);
 
 		stage_clear = 0;
+		is_map_data_dirty = 0;
 		
 		do {
 			// Wait button press
@@ -270,6 +281,8 @@ char handle_title() {
 			
 			SMS_waitForVBlank();
 			SMS_copySpritestoSAT();	
+			
+			if (is_map_data_dirty) draw_map(map);
 			
 			joy_prev = joy;
 			joy = SMS_getKeysStatus();
