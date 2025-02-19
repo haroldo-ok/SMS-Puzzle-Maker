@@ -533,7 +533,7 @@ var tinyMapEditor = (function() {
 			return {
 				tool: {
 					name: APP_NAME,
-					version: '0.17.0',
+					version: '0.18.0',
 					format: '0.1.0'
 				},
 				options: {
