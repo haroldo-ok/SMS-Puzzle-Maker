@@ -34,6 +34,7 @@
 	
 	const newTd = (...children) => h('td', {}, ...children);
 	const newDiv = (...children) => h('div', {}, ...children);
+	const newLabel = (...children) => h('label', {}, ...children);
 	
 	const newInput = (type, attributes) => h('input', { type, ...attributes });
 	const newCheckbox = attributes => newInput('checkbox', { ...attributes });
@@ -55,7 +56,7 @@
 	}
 	
 	const populateModalDialog = (dialog, title, ...contents) => {
-		const closePopupButton = h('button', {'@click': () => tileAttrsDialog.close() }, 'Close popup');
+		const closePopupButton = h('button', {'@click': () => dialog.close() }, 'Close popup');
 			
 		const popupHeader = h('h4', {}, 
 			title,
@@ -70,7 +71,7 @@
 	
 	window.DomUtil = {
 		h, getEventTarget,
-		newTd, newDiv, 
+		newTd, newDiv, newLabel,
 		newInput, newCheckbox,
 		newDataCheckbox,
 		populateModalDialog

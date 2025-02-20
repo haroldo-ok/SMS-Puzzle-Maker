@@ -518,6 +518,17 @@ var tinyMapEditor = (function() {
 			populateModalDialog(tileAttrsDialog, 'Tile Attributes', table);
 		},
 		
+		showProjectInfoPopup : function() {
+			const { h, newDiv, newLabel, newInput, newDataCheckbox, populateModalDialog } = DomUtil;
+
+			populateModalDialog(projectInfoDialog, 'Project Info', 
+				newDiv(
+					newLabel('Project Name:'),
+					newInput('text', {})
+				)
+			);
+		},
+		
 		generateProjectObject : function() {
 			this.saveCurrentMapToMapList();
 			this.prepareTileAttrsStructure();
@@ -706,7 +717,7 @@ var tinyMapEditor = (function() {
 			/**
 			 * Project info event
 			 */
-			projectInfoButton.addEventListener('click', () => projectInfoDialog.showModal());
+			projectInfoButton.addEventListener('click', () => _this.showProjectInfoPopup());
 
 			/**
 			 * Project file event			
