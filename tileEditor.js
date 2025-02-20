@@ -30,6 +30,8 @@ var tinyMapEditor = (function() {
 		tileAttrsButton = getById('tileAttrsButton'),
 		tileAttrsDialog = getById('tileAttrsDialog'),
 		
+		projectInfoButton = getById('projectInfoButton'),
+		projectInfoDialog = getById('projectInfoDialog'),
 		loadProjectInput = getById('loadProjectInput'),
 		
 		widthInput = getById('width'),
@@ -711,6 +713,11 @@ var tinyMapEditor = (function() {
 				fr.readAsDataURL(file);
 			 });
 			 
+			/**
+			 * Project info event
+			 */
+			projectInfoButton.addEventListener('click', () => projectInfoDialog.showModal());
+
 			/**
 			 * Project file event			
 			 */
