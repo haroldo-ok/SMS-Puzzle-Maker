@@ -20,6 +20,7 @@ var tinyMapEditor = (function() {
 		mapId,
         tiles,
         tileAttrs,
+		projectInfo,
 
         player,
         draw,
@@ -518,13 +519,25 @@ var tinyMapEditor = (function() {
 			populateModalDialog(tileAttrsDialog, 'Tile Attributes', table);
 		},
 		
+		prepareProjectInfoStructure : function() {
+			if (!projectInfo) projectInfo = {};
+			
+			projectInfo.name = projectInfo.name || 'Unnamed Project';
+		},
+		
 		showProjectInfoPopup : function() {
-			const { h, newDiv, newLabel, newInput, newDataCheckbox, populateModalDialog } = DomUtil;
+			this.prepareProjectInfoStructure();
+			
+			const { h, newDiv, newLabel, newInput, newDataInput, populateModalDialog } = DomUtil;
 
+			const handleChange = result => {
+				console.log('projectInfo', projectInfo);
+			}
+			
 			populateModalDialog(projectInfoDialog, 'Project Info', 
 				newDiv(
 					newLabel('Project Name:'),
-					newInput('text', {})
+					newDataInput(projectInfo, 'name', 'text', { '@afterchange': handleChange })
 				)
 			);
 		},

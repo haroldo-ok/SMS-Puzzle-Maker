@@ -38,6 +38,22 @@
 	
 	const newInput = (type, attributes) => h('input', { type, ...attributes });
 	const newCheckbox = attributes => newInput('checkbox', { ...attributes });
+
+	const newDataInput = (object, attrName, type, attributes = {}) => {
+		const handleChange = e => {
+			const target = getEventTarget(e);
+			object[attrName] = target.value;
+			attributes['@afterchange'] && attributes['@afterchange']({ event: e, object, target });
+		}
+		
+		const input = newInput(type, {
+			'@change': handleChange, 
+			'.value': object[attrName],
+			...attributes
+		});
+		
+		return input
+	}
 	
 	const newDataCheckbox = (object, attrName, attributes = {}) => {
 		const handleClick = e => {
@@ -73,7 +89,7 @@
 		h, getEventTarget,
 		newTd, newDiv, newLabel,
 		newInput, newCheckbox,
-		newDataCheckbox,
+		newDataInput, newDataCheckbox,
 		populateModalDialog
 	};
 })();
