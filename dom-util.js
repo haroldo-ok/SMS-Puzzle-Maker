@@ -54,10 +54,25 @@
 		return checkbox;
 	}
 	
+	const populateModalDialog = (dialog, title, ...contents) => {
+		const closePopupButton = h('button', {'@click': () => tileAttrsDialog.close() }, 'Close popup');
+			
+		const popupHeader = h('h4', {}, 
+			title,
+			closePopupButton
+		);
+
+		dialog.innerHTML = '';
+		dialog.appendChild(popupHeader);
+		contents && contents.forEach(el => dialog.appendChild(el));
+		dialog.showModal();
+	}
+	
 	window.DomUtil = {
 		h, getEventTarget,
 		newTd, newDiv, 
 		newInput, newCheckbox,
-		newDataCheckbox
+		newDataCheckbox,
+		populateModalDialog
 	};
 })();

@@ -474,7 +474,7 @@ var tinyMapEditor = (function() {
 		showTileAttrsPopup : function() {
 			this.prepareTileAttrsStructure();
 			
-			const { h, newTd, newDataCheckbox } = DomUtil;
+			const { h, newTd, newDataCheckbox, populateModalDialog } = DomUtil;
 						
 			const handleCheckboxAfterClick = result => {
 				this.saveTileAttrs();
@@ -510,22 +510,12 @@ var tinyMapEditor = (function() {
 				)
 			);
 			
-			const closePopupButton = h('button', {'@click': () => tileAttrsDialog.close() }, 'Close popup');
-				
-			const popupHeader = h('h4', {}, 
-				'Tile Attributes (W.I.P)',
-				closePopupButton
-			);
-			
 			const table = h('table', {}, 
 				h('tr', {}, ...headerRow),
 				...dataRows
 			);
 			
-			tileAttrsDialog.innerHTML = '';
-			tileAttrsDialog.appendChild(popupHeader);
-			tileAttrsDialog.appendChild(table);
-			tileAttrsDialog.showModal();
+			populateModalDialog(tileAttrsDialog, 'Tile Attributes', table);
 		},
 		
 		generateProjectObject : function() {
