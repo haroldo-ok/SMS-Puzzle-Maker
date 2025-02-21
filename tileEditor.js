@@ -525,13 +525,22 @@ var tinyMapEditor = (function() {
 			projectInfo.name = projectInfo.name || 'Unnamed Project';
 		},
 		
+        saveProjectInfo : function() {			
+			storage.put('projectInfo', projectInfo);
+        },
+
+        loadProjectInfo : function() {
+			projectInfo = storage.get('projectInfo');
+			this.prepareProjectInfoStructure();
+        },
+		
 		showProjectInfoPopup : function() {
 			this.prepareProjectInfoStructure();
 			
 			const { h, newDiv, newLabel, newInput, newDataInput, populateModalDialog } = DomUtil;
 
 			const handleChange = result => {
-				console.log('projectInfo', projectInfo);
+				this.saveProjectInfo();
 			}
 			
 			populateModalDialog(projectInfoDialog, 'Project Info', 
