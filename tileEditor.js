@@ -554,6 +554,7 @@ var tinyMapEditor = (function() {
 		generateProjectObject : function() {
 			this.saveCurrentMapToMapList();
 			this.prepareTileAttrsStructure();
+			this.prepareProjectInfoStructure();
 			
 			return {
 				tool: {
@@ -561,6 +562,7 @@ var tinyMapEditor = (function() {
 					version: '0.18.0',
 					format: '0.1.0'
 				},
+				projectInfo,
 				options: {
 					tileZoom,
 					tileSize,
