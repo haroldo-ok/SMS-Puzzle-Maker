@@ -612,6 +612,10 @@ var tinyMapEditor = (function() {
 			tileAttrs = attributes;
 			this.prepareTileAttrsStructure();
 			this.saveTileAttrs();
+			
+			projectInfo = project.projectInfo;
+			this.prepareProjectInfoStructure();
+			this.saveProjectInfo();
 
 			this.destroy();
 			this.init();
