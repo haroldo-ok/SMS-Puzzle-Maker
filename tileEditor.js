@@ -47,6 +47,8 @@ var tinyMapEditor = (function() {
 		generateROM = getById('generateROM');
 		
 	const APP_NAME = 'SMS-Puzzle-Maker';
+	const APP_VERSION = '0.18.0';
+	
 	const STORAGE_PREFIX = APP_NAME + '.';
 	const storage = {
 		get: k => {
@@ -559,7 +561,7 @@ var tinyMapEditor = (function() {
 			return {
 				tool: {
 					name: APP_NAME,
-					version: '0.18.0',
+					version: APP_VERSION,
 					format: '0.1.0'
 				},
 				projectInfo,
@@ -652,6 +654,11 @@ var tinyMapEditor = (function() {
 			widthInput.value = storedSize.mapWidth;
 			heightInput.value = storedSize.mapHeight;
 			tileZoomInput.value = storedSize.tileZoom;
+		},
+		
+		showVersionInfo: function() {
+			[...document.getElementsByClassName('applicationName')]
+				.forEach(el => el.innerHTML = `${APP_NAME} - version ${APP_VERSION}`);
 		},
 
         bindEvents : function() {
@@ -791,6 +798,8 @@ var tinyMapEditor = (function() {
         },
 
         init : function() {
+			this.showVersionInfo();
+			
 			this.loadSizeVariables();
 			this.updateSizeVariables();
 			
