@@ -788,6 +788,7 @@ var tinyMapEditor = (function() {
 			tileSetForSms = storedTileSet && storedTileSet.forMasterSystem;
 			
 			this.loadTileAttrs();
+			this.loadProjectInfo();
 			
 			let storedSrc = storedTileSet && storedTileSet.src || 'assets/default_tilemap.png';
 			if (storedSrc.startsWith('http:') || storedSrc.startsWith('https:')) {
