@@ -20,6 +20,7 @@ var tinyMapEditor = (function() {
 		mapId,
         tiles,
         tileAttrs,
+		projectInfo,
 
         player,
         draw,
@@ -30,6 +31,8 @@ var tinyMapEditor = (function() {
 		tileAttrsButton = getById('tileAttrsButton'),
 		tileAttrsDialog = getById('tileAttrsDialog'),
 		
+		projectInfoButton = getById('projectInfoButton'),
+		projectInfoDialog = getById('projectInfoDialog'),
 		loadProjectInput = getById('loadProjectInput'),
 		
 		widthInput = getById('width'),
@@ -44,6 +47,8 @@ var tinyMapEditor = (function() {
 		generateROM = getById('generateROM');
 		
 	const APP_NAME = 'SMS-Puzzle-Maker';
+	const APP_VERSION = '0.18.0';
+	
 	const STORAGE_PREFIX = APP_NAME + '.';
 	const storage = {
 		get: k => {
@@ -472,7 +477,7 @@ var tinyMapEditor = (function() {
 		showTileAttrsPopup : function() {
 			this.prepareTileAttrsStructure();
 			
-			const { h, newTd, newDataCheckbox } = DomUtil;
+			const { h, newTd, newDataCheckbox, populateModalDialog } = DomUtil;
 						
 			const handleCheckboxAfterClick = result => {
 				this.saveTileAttrs();
@@ -508,34 +513,58 @@ var tinyMapEditor = (function() {
 				)
 			);
 			
-			const closePopupButton = h('button', {'@click': () => tileAttrsDialog.close() }, 'Close popup');
-				
-			const popupHeader = h('h4', {}, 
-				'Tile Attributes (W.I.P)',
-				closePopupButton
-			);
-			
 			const table = h('table', {}, 
 				h('tr', {}, ...headerRow),
 				...dataRows
 			);
 			
-			tileAttrsDialog.innerHTML = '';
-			tileAttrsDialog.appendChild(popupHeader);
-			tileAttrsDialog.appendChild(table);
-			tileAttrsDialog.showModal();
+			populateModalDialog(tileAttrsDialog, 'Tile Attributes', table);
+		},
+		
+		prepareProjectInfoStructure : function() {
+			if (!projectInfo) projectInfo = {};
+			
+			projectInfo.name = projectInfo.name || 'Unnamed Project';
+		},
+		
+        saveProjectInfo : function() {			
+			storage.put('projectInfo', projectInfo);
+        },
+
+        loadProjectInfo : function() {
+			projectInfo = storage.get('projectInfo');
+			this.prepareProjectInfoStructure();
+        },
+		
+		showProjectInfoPopup : function() {
+			this.prepareProjectInfoStructure();
+			
+			const { h, newDiv, newLabel, newInput, newDataInput, populateModalDialog } = DomUtil;
+
+			const handleChange = result => {
+				this.saveProjectInfo();
+			}
+			
+			populateModalDialog(projectInfoDialog, 'Project Info', 
+				newDiv(
+					newLabel('Project Name:'),
+					newDataInput(projectInfo, 'name', 'text', { '@afterchange': handleChange })
+				)
+			);
 		},
 		
 		generateProjectObject : function() {
 			this.saveCurrentMapToMapList();
 			this.prepareTileAttrsStructure();
+			this.prepareProjectInfoStructure();
 			
 			return {
 				tool: {
 					name: APP_NAME,
-					version: '0.18.0',
+					version: APP_VERSION,
 					format: '0.1.0'
 				},
+				projectInfo,
 				options: {
 					tileZoom,
 					tileSize,
@@ -556,8 +585,13 @@ var tinyMapEditor = (function() {
 			const project = this.generateProjectObject();
             const output = neatJSON(project, { afterColon: 1, afterComma: 1, objectPadding: 1 });
 			
-			var blob = new Blob([output], { type: 'application/json' });
-			saveAs(blob, APP_NAME + '.project.json');
+			const normalizedProjectName = project.projectInfo.name.replace(/[^A-Za-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+			const isoDate = new Date().toISOString().substring(0,10);
+			
+			const blob = new Blob([output], { type: 'application/json' });
+			saveAs(blob, 
+				normalizedProjectName + ' - ' + isoDate +
+				'.project.json');
         },
 		
 		inputJSON: function(json) {
@@ -585,6 +619,10 @@ var tinyMapEditor = (function() {
 			tileAttrs = attributes;
 			this.prepareTileAttrsStructure();
 			this.saveTileAttrs();
+			
+			projectInfo = project.projectInfo;
+			this.prepareProjectInfoStructure();
+			this.saveProjectInfo();
 
 			this.destroy();
 			this.init();
@@ -616,6 +654,11 @@ var tinyMapEditor = (function() {
 			widthInput.value = storedSize.mapWidth;
 			heightInput.value = storedSize.mapHeight;
 			tileZoomInput.value = storedSize.tileZoom;
+		},
+		
+		showVersionInfo: function() {
+			[...document.getElementsByClassName('applicationName')]
+				.forEach(el => el.innerHTML = `${APP_NAME} - version ${APP_VERSION}`);
 		},
 
         bindEvents : function() {
@@ -712,6 +755,11 @@ var tinyMapEditor = (function() {
 			 });
 			 
 			/**
+			 * Project info event
+			 */
+			projectInfoButton.addEventListener('click', () => _this.showProjectInfoPopup());
+
+			/**
 			 * Project file event			
 			 */
 			loadProjectInput.addEventListener('change', () => {
@@ -750,6 +798,8 @@ var tinyMapEditor = (function() {
         },
 
         init : function() {
+			this.showVersionInfo();
+			
 			this.loadSizeVariables();
 			this.updateSizeVariables();
 			
@@ -758,6 +808,7 @@ var tinyMapEditor = (function() {
 			tileSetForSms = storedTileSet && storedTileSet.forMasterSystem;
 			
 			this.loadTileAttrs();
+			this.loadProjectInfo();
 			
 			let storedSrc = storedTileSet && storedTileSet.src || 'assets/default_tilemap.png';
 			if (storedSrc.startsWith('http:') || storedSrc.startsWith('https:')) {

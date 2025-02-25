@@ -34,9 +34,26 @@
 	
 	const newTd = (...children) => h('td', {}, ...children);
 	const newDiv = (...children) => h('div', {}, ...children);
+	const newLabel = (...children) => h('label', {}, ...children);
 	
 	const newInput = (type, attributes) => h('input', { type, ...attributes });
 	const newCheckbox = attributes => newInput('checkbox', { ...attributes });
+
+	const newDataInput = (object, attrName, type, attributes = {}) => {
+		const handleChange = e => {
+			const target = getEventTarget(e);
+			object[attrName] = target.value;
+			attributes['@afterchange'] && attributes['@afterchange']({ event: e, object, target });
+		}
+		
+		const input = newInput(type, {
+			'@change': handleChange, 
+			'.value': object[attrName],
+			...attributes
+		});
+		
+		return input
+	}
 	
 	const newDataCheckbox = (object, attrName, attributes = {}) => {
 		const handleClick = e => {
@@ -54,10 +71,25 @@
 		return checkbox;
 	}
 	
+	const populateModalDialog = (dialog, title, ...contents) => {
+		const closePopupButton = h('button', {'@click': () => dialog.close() }, 'Close popup');
+			
+		const popupHeader = h('h4', {}, 
+			title,
+			closePopupButton
+		);
+
+		dialog.innerHTML = '';
+		dialog.appendChild(popupHeader);
+		contents && contents.forEach(el => dialog.appendChild(el));
+		dialog.showModal();
+	}
+	
 	window.DomUtil = {
 		h, getEventTarget,
-		newTd, newDiv, 
+		newTd, newDiv, newLabel,
 		newInput, newCheckbox,
-		newDataCheckbox
+		newDataInput, newDataCheckbox,
+		populateModalDialog
 	};
 })();
