@@ -244,6 +244,26 @@ void initialize_graphics() {
 	SMS_loadSpritePalette(resource_get_pointer(resource_find("main.pal")));
 }
 
+void wait_button_press() {
+	unsigned int joy;
+	
+	// Wait button press
+	do {
+		SMS_waitForVBlank();
+		joy = SMS_getKeysStatus();
+	} while (!(joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
+}
+
+void wait_button_release() {
+	unsigned int joy;
+	
+	// Wait button release
+	do {
+		SMS_waitForVBlank();
+		joy = SMS_getKeysStatus();
+	} while ((joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
+}
+
 char gameplay_loop() {
 	unsigned int joy = SMS_getKeysStatus();
 	unsigned int joy_prev = 0;
@@ -319,21 +339,24 @@ char gameplay_loop() {
 		
 		map_number++;
 
-		// Wait button release
-		do {
-			SMS_waitForVBlank();
-			joy = SMS_getKeysStatus();
-		} while ((joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
+		wait_button_release();
 	}
 
 	return STATE_GAMEOVER;
 }
 
-char handle_gameover() {	
+char handle_gameover() {
 	return STATE_START;
 }
 
 char handle_title() {
+	initialize_graphics();
+
+	SMS_displayOn();
+	
+	wait_button_press();
+	wait_button_release();
+	
 	return STATE_GAMEPLAY;
 }
 
