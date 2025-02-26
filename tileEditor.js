@@ -47,7 +47,7 @@ var tinyMapEditor = (function() {
 		generateROM = getById('generateROM');
 		
 	const APP_NAME = 'SMS-Puzzle-Maker';
-	const APP_VERSION = '0.18.0';
+	const APP_VERSION = '0.19.0';
 	
 	const STORAGE_PREFIX = APP_NAME + '.';
 	const storage = {
