@@ -6,6 +6,7 @@
 	   return arr.concat(Array(len - arr.length).fill(padding));
 	}
 	
+	const stringToByteArray = s => [...s.split('').map(ch => ch.charCodeAt(0)), 0];
 	const stringToPaddedByteArray = (s, len) => padArrayEnd(s.split('').map(ch => ch.charCodeAt(0)), len, 0);
 	const toBytePair = n => [n & 0xFF, (n >> 8) & 0xFF];
 
@@ -72,10 +73,13 @@
 						.reduce((acc, key, idx) => acc | ((attr[key] ? 1 : 0) << idx), 0);
 				});
 				
+			const projectInfo = [project.tool.name, project.tool.version, project.projectInfo.name].map(stringToByteArray);
+				
 			return {
 				palette,
 				tileSet: _.flatten(tileSet),
 				tileAttributes: _.flatten(tileAttributes.map(toBytePair)),
+				projectInfo: _.flatten(projectInfo),
 				maps
 			};
 		},
@@ -91,6 +95,7 @@
 				'main.pal': padArrayEnd(obj.palette, 16, 0),
 				'main.til': obj.tileSet,
 				'main.atr': obj.tileAttributes,
+				'project.inf': obj.projectInfo,
 				...maps
 			};			
 		},
