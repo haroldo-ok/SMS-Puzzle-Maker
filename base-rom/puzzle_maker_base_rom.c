@@ -226,6 +226,11 @@ void player_find_start(resource_map_format *map) {
 	}
 }
 
+char *skip_after_end_of_string(char *s) {
+	while (*s) s++;
+	return s + 1;
+}
+
 void initialize_graphics() {
 	SMS_waitForVBlank();
 	SMS_displayOff();
@@ -351,6 +356,19 @@ char handle_gameover() {
 
 char handle_title() {
 	initialize_graphics();
+	
+	char *app_name = resource_get_pointer(resource_find("project.inf"));
+	char *app_version = skip_after_end_of_string(app_name);
+	char *project_name = skip_after_end_of_string(app_version);
+	
+	SMS_setNextTileatXY(2, 1);
+	printf("%s %s", app_name, app_version);
+
+	SMS_setNextTileatXY(2, 3);
+	puts(project_name);
+
+	SMS_setNextTileatXY(2, 21);
+	puts("Press any button to start");
 
 	SMS_displayOn();
 	
