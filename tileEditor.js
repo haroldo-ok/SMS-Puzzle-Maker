@@ -379,7 +379,7 @@ var tinyMapEditor = (function() {
 			const project = this.generateProjectObject();
 			
 			gameResource.generateROM(project)
-			.then(blob => saveAs(blob, APP_NAME + '.sms'));
+			.then(blob => saveAs(blob, this.getProjectFileName(project) + '.sms'));
         },
 
         sortPartial : function(arr) {
