@@ -585,13 +585,8 @@ var tinyMapEditor = (function() {
 			const project = this.generateProjectObject();
             const output = neatJSON(project, { afterColon: 1, afterComma: 1, objectPadding: 1 });
 			
-			const normalizedProjectName = project.projectInfo.name.replace(/[^A-Za-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
-			const isoDate = new Date().toISOString().substring(0,10);
-			
 			const blob = new Blob([output], { type: 'application/json' });
-			saveAs(blob, 
-				normalizedProjectName + ' - ' + isoDate +
-				'.project.json');
+			saveAs(blob, this.getProjectFileName(project) + '.project.json');
         },
 		
 		inputJSON: function(json) {
@@ -626,6 +621,12 @@ var tinyMapEditor = (function() {
 
 			this.destroy();
 			this.init();
+		},
+		
+		getProjectFileName: function(project) {
+			const normalizedProjectName = project.projectInfo.name.replace(/[^A-Za-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+			const isoDate = new Date().toISOString().substring(0,10);
+			return normalizedProjectName + ' - ' + isoDate;
 		},
 
 		updateSizeVariables : function() {
