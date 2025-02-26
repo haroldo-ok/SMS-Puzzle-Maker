@@ -226,15 +226,25 @@ void player_find_start(resource_map_format *map) {
 	}
 }
 
+void initialize_graphics() {
+	SMS_waitForVBlank();
+	SMS_displayOff();
+	SMS_disableLineInterrupt();
+	
+	load_standard_palettes();
+	
+	SMS_VRAMmemsetW(0, 0, 16 * 1024); 
+
+	SMS_load1bppTiles(font_1bpp, 352, font_1bpp_size, 0, 1);
+	SMS_configureTextRenderer(352 - 32);
+	
+	SMS_mapROMBank(RESOURCE_BANK);
+	
+	SMS_loadBGPalette(resource_get_pointer(resource_find("main.pal")));
+	SMS_loadSpritePalette(resource_get_pointer(resource_find("main.pal")));
+}
+
 char gameplay_loop() {
-	return STATE_GAMEOVER;
-}
-
-char handle_gameover() {	
-	return STATE_START;
-}
-
-char handle_title() {
 	unsigned int joy = SMS_getKeysStatus();
 	unsigned int joy_prev = 0;
 	unsigned int joy_delay = 0;
@@ -242,20 +252,8 @@ char handle_title() {
 	int map_number = 1;	
 	
 	while (1) {
-		SMS_waitForVBlank();
-		SMS_displayOff();
-		SMS_disableLineInterrupt();
-		
-		load_standard_palettes();
-		
-		SMS_VRAMmemsetW(0, 0, 16 * 1024); 
+		initialize_graphics();
 
-		SMS_load1bppTiles(font_1bpp, 352, font_1bpp_size, 0, 1);
-		SMS_configureTextRenderer(352 - 32);
-		
-		SMS_mapROMBank(RESOURCE_BANK);
-		
-		SMS_loadBGPalette(resource_get_pointer(resource_find("main.pal")));
 		SMS_loadTiles(resource_get_pointer(resource_find("main.til")), 4, 256 * 32);
 		
 		tile_attrs = resource_find("main.atr");
@@ -328,6 +326,14 @@ char handle_title() {
 		} while ((joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
 	}
 
+	return STATE_GAMEOVER;
+}
+
+char handle_gameover() {	
+	return STATE_START;
+}
+
+char handle_title() {
 	return STATE_GAMEPLAY;
 }
 
