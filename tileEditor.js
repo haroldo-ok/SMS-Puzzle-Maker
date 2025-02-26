@@ -47,7 +47,7 @@ var tinyMapEditor = (function() {
 		generateROM = getById('generateROM');
 		
 	const APP_NAME = 'SMS-Puzzle-Maker';
-	const APP_VERSION = '0.18.0';
+	const APP_VERSION = '0.19.0';
 	
 	const STORAGE_PREFIX = APP_NAME + '.';
 	const storage = {
@@ -379,7 +379,7 @@ var tinyMapEditor = (function() {
 			const project = this.generateProjectObject();
 			
 			gameResource.generateROM(project)
-			.then(blob => saveAs(blob, APP_NAME + '.sms'));
+			.then(blob => saveAs(blob, this.getProjectFileName(project) + '.sms'));
         },
 
         sortPartial : function(arr) {
@@ -585,13 +585,8 @@ var tinyMapEditor = (function() {
 			const project = this.generateProjectObject();
             const output = neatJSON(project, { afterColon: 1, afterComma: 1, objectPadding: 1 });
 			
-			const normalizedProjectName = project.projectInfo.name.replace(/[^A-Za-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
-			const isoDate = new Date().toISOString().substring(0,10);
-			
 			const blob = new Blob([output], { type: 'application/json' });
-			saveAs(blob, 
-				normalizedProjectName + ' - ' + isoDate +
-				'.project.json');
+			saveAs(blob, this.getProjectFileName(project) + '.project.json');
         },
 		
 		inputJSON: function(json) {
@@ -626,6 +621,12 @@ var tinyMapEditor = (function() {
 
 			this.destroy();
 			this.init();
+		},
+		
+		getProjectFileName: function(project) {
+			const normalizedProjectName = project.projectInfo.name.replace(/[^A-Za-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+			const isoDate = new Date().toISOString().substring(0,10);
+			return normalizedProjectName + ' - ' + isoDate;
 		},
 
 		updateSizeVariables : function() {

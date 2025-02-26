@@ -226,15 +226,50 @@ void player_find_start(resource_map_format *map) {
 	}
 }
 
+char *skip_after_end_of_string(char *s) {
+	while (*s) s++;
+	return s + 1;
+}
+
+void initialize_graphics() {
+	SMS_waitForVBlank();
+	SMS_displayOff();
+	SMS_disableLineInterrupt();
+	
+	load_standard_palettes();
+	
+	SMS_VRAMmemsetW(0, 0, 16 * 1024); 
+
+	SMS_load1bppTiles(font_1bpp, 352, font_1bpp_size, 0, 1);
+	SMS_configureTextRenderer(352 - 32);
+	
+	SMS_mapROMBank(RESOURCE_BANK);
+	
+	SMS_loadBGPalette(resource_get_pointer(resource_find("main.pal")));
+	SMS_loadSpritePalette(resource_get_pointer(resource_find("main.pal")));
+}
+
+void wait_button_press() {
+	unsigned int joy;
+	
+	// Wait button press
+	do {
+		SMS_waitForVBlank();
+		joy = SMS_getKeysStatus();
+	} while (!(joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
+}
+
+void wait_button_release() {
+	unsigned int joy;
+	
+	// Wait button release
+	do {
+		SMS_waitForVBlank();
+		joy = SMS_getKeysStatus();
+	} while ((joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
+}
+
 char gameplay_loop() {
-	return STATE_GAMEOVER;
-}
-
-char handle_gameover() {	
-	return STATE_START;
-}
-
-char handle_title() {
 	unsigned int joy = SMS_getKeysStatus();
 	unsigned int joy_prev = 0;
 	unsigned int joy_delay = 0;
@@ -242,20 +277,8 @@ char handle_title() {
 	int map_number = 1;	
 	
 	while (1) {
-		SMS_waitForVBlank();
-		SMS_displayOff();
-		SMS_disableLineInterrupt();
-		
-		load_standard_palettes();
-		
-		SMS_VRAMmemsetW(0, 0, 16 * 1024); 
+		initialize_graphics();
 
-		SMS_load1bppTiles(font_1bpp, 352, font_1bpp_size, 0, 1);
-		SMS_configureTextRenderer(352 - 32);
-		
-		SMS_mapROMBank(RESOURCE_BANK);
-		
-		SMS_loadBGPalette(resource_get_pointer(resource_find("main.pal")));
 		SMS_loadTiles(resource_get_pointer(resource_find("main.til")), 4, 256 * 32);
 		
 		tile_attrs = resource_find("main.atr");
@@ -321,13 +344,37 @@ char handle_title() {
 		
 		map_number++;
 
-		// Wait button release
-		do {
-			SMS_waitForVBlank();
-			joy = SMS_getKeysStatus();
-		} while ((joy & (PORT_A_KEY_1 | PORT_A_KEY_2 | PORT_B_KEY_1 | PORT_B_KEY_2)));
+		wait_button_release();
 	}
 
+	return STATE_GAMEOVER;
+}
+
+char handle_gameover() {
+	return STATE_START;
+}
+
+char handle_title() {
+	initialize_graphics();
+	
+	char *app_name = resource_get_pointer(resource_find("project.inf"));
+	char *app_version = skip_after_end_of_string(app_name);
+	char *project_name = skip_after_end_of_string(app_version);
+	
+	SMS_setNextTileatXY(2, 1);
+	printf("%s %s", app_name, app_version);
+
+	SMS_setNextTileatXY(2, 3);
+	puts(project_name);
+
+	SMS_setNextTileatXY(2, 21);
+	puts("Press any button to start");
+
+	SMS_displayOn();
+	
+	wait_button_press();
+	wait_button_release();
+	
 	return STATE_GAMEPLAY;
 }
 
@@ -356,6 +403,6 @@ void main() {
 }
 
 SMS_EMBED_SEGA_ROM_HEADER(9999,0); // code 9999 hopefully free, here this means 'homebrew'
-SMS_EMBED_SDSC_HEADER(0,4, 2025,02,18, "Haroldo-OK\\2025", "SMS-Puzzle-Maker base ROM",
+SMS_EMBED_SDSC_HEADER(0,5, 2025,02,25, "Haroldo-OK\\2025", "SMS-Puzzle-Maker base ROM",
   "Made for SMS-Puzzle-Maker - https://github.com/haroldo-ok/SMS-Puzzle-Maker.\n"
   "Built using devkitSMS & SMSlib - https://github.com/sverx/devkitSMS");
