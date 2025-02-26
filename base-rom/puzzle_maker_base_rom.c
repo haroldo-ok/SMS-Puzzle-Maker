@@ -403,6 +403,6 @@ void main() {
 }
 
 SMS_EMBED_SEGA_ROM_HEADER(9999,0); // code 9999 hopefully free, here this means 'homebrew'
-SMS_EMBED_SDSC_HEADER(0,4, 2025,02,18, "Haroldo-OK\\2025", "SMS-Puzzle-Maker base ROM",
+SMS_EMBED_SDSC_HEADER(0,5, 2025,02,25, "Haroldo-OK\\2025", "SMS-Puzzle-Maker base ROM",
   "Made for SMS-Puzzle-Maker - https://github.com/haroldo-ok/SMS-Puzzle-Maker.\n"
   "Built using devkitSMS & SMSlib - https://github.com/sverx/devkitSMS");
