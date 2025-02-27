@@ -87,9 +87,7 @@
 		generateInternalFiles: (project) => {
 			const obj = that.generateObj(project);
 
-			console.log(obj.maps);
 			const maps = Object.fromEntries(obj.maps.map(m => [m.fileName, m.content]));
-			console.log(maps);
 
 			return {
 				'main.pal': padArrayEnd(obj.palette, 16, 0),
@@ -147,7 +145,6 @@
 					
 					return entry;
 				});
-			console.log('allocatedFileEntries', allocatedFileEntries);
 
 			const fileEntriesTable = allocatedFileEntries
 				.map(({ fileName, pageNumber, offset, content }) => {
@@ -182,8 +179,6 @@
 				pages[pageIndex] = pageData;
 			});
 			
-			console.log('pages', pages);
-
 			return _.flatten(pages);
 		},
 		
