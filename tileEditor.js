@@ -1,4 +1,7 @@
 var tinyMapEditor = (function() {
+	const APP_NAME = 'SMS-Puzzle-Maker';
+	const APP_VERSION = '0.20.0';	
+
     var win = window,
         doc = document,
 		getById = id =>  document.getElementById(id),
@@ -46,9 +49,6 @@ var tinyMapEditor = (function() {
 		generateResource = getById('generateResource'),
 		generateROM = getById('generateROM');
 		
-	const APP_NAME = 'SMS-Puzzle-Maker';
-	const APP_VERSION = '0.19.0';
-	
 	const STORAGE_PREFIX = APP_NAME + '.';
 	const storage = {
 		get: k => {
