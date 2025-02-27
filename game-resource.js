@@ -122,15 +122,24 @@
 
 			const fileContentInitialOffset = header.length + fileEntriesSize;
 			
+			const PAGE_SIZE = 16 * 1024;
+			const INITIAL_PAGE = 2;
+			
 			// For now, uses a simplistic file allocation
-			let nextPageNumber = 2;
+			let nextPageNumber = INITIAL_PAGE;
 			let fileContentOffset = fileContentInitialOffset;
 			const allocatedFileEntries = fileEntries
 				.map(({ fileName, content }) => {
+					if (fileContentOffset + content.length > PAGE_SIZE) {
+						nextPageNumber++;
+						fileContentOffset = 0;
+					}
+					
 					const entry = {
 						fileName,
 						pageNumber: nextPageNumber,
 						offset: fileContentOffset,
+						contentLength: content.length,
 						content
 					};
 
@@ -138,7 +147,7 @@
 					
 					return entry;
 				});
-			console.log(allocatedFileEntries);
+			console.log('allocatedFileEntries', allocatedFileEntries);
 
 			const fileEntriesTable = allocatedFileEntries
 				.map(({ fileName, pageNumber, offset, content }) => {
@@ -151,13 +160,25 @@
 					
 					return entry;
 				});
+				
+			const pages = [
+				[...header, ..._.flatten(fileEntriesTable)]
+			];
+			allocatedFileEntries.forEach(({ fileName, pageNumber, offset, content }) => {
+				const pageData = pages[pageNumber - INITIAL_PAGE] || [];
+				
+				pageData.length = Math.max(pageData.length, offset + content.length);
+				content.forEach((byte, idx) => {
+					pageData[offset + idx] = byte;
+				});
+				
+				pages[pageNumber - INITIAL_PAGE] = pageData;
+			});
+			
+			console.log('pages', pages);
 			const fileContents = fileEntries.map(o => o.content);
 
-			return [
-				...header, 
-				..._.flatten(fileEntriesTable), 
-				..._.flatten(fileContents)
-			];
+			return _.flatten(pages);
 		},
 		
 		generateBlob: (project) => {
