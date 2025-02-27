@@ -125,7 +125,7 @@
 			const PAGE_SIZE = 16 * 1024;
 			const INITIAL_PAGE = 2;
 			
-			// For now, uses a simplistic file allocation
+			// For now, uses a simplistic page allocation
 			let nextPageNumber = INITIAL_PAGE;
 			let fileContentOffset = fileContentInitialOffset;
 			const allocatedFileEntries = fileEntries
@@ -153,7 +153,7 @@
 				.map(({ fileName, pageNumber, offset, content }) => {
 					const entry = [
 						...stringToPaddedByteArray(fileName, fileEntryFormat.name),
-						...toBytePair(pageNumber), // TODO: Support paging
+						...toBytePair(pageNumber),
 						...toBytePair(content.length),
 						...toBytePair(offset)
 					];
@@ -165,18 +165,24 @@
 				[...header, ..._.flatten(fileEntriesTable)]
 			];
 			allocatedFileEntries.forEach(({ fileName, pageNumber, offset, content }) => {
-				const pageData = pages[pageNumber - INITIAL_PAGE] || [];
+				const pageIndex = pageNumber - INITIAL_PAGE;
+				const pageData = pages[pageIndex] || [];
 				
-				pageData.length = Math.max(pageData.length, offset + content.length);
+				if (pageData.length < PAGE_SIZE) {
+					pageData.length = PAGE_SIZE;
+					for (let idx = 0; idx < PAGE_SIZE; idx++) {
+						pageData[idx] = pageData[idx] || 0;
+					}
+				}
+				
 				content.forEach((byte, idx) => {
 					pageData[offset + idx] = byte;
 				});
 				
-				pages[pageNumber - INITIAL_PAGE] = pageData;
+				pages[pageIndex] = pageData;
 			});
 			
 			console.log('pages', pages);
-			const fileContents = fileEntries.map(o => o.content);
 
 			return _.flatten(pages);
 		},
