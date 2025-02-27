@@ -99,7 +99,7 @@
 				...maps
 			};			
 		},
-
+		
 		generateInternalFileSystem: (project) => {
 			const internalFiles = that.generateInternalFiles(project);
 			const fileEntries = Object.keys(internalFiles).sort()
@@ -119,20 +119,35 @@
 				...stringToPaddedByteArray('rsc', 4),
 				...toBytePair(fileEntries.length)
 			];
-			
+
 			const fileContentInitialOffset = header.length + fileEntriesSize;
 			
+			// For now, uses a simplistic file allocation
+			let nextPageNumber = 2;
 			let fileContentOffset = fileContentInitialOffset;
-			const fileEntriesTable = fileEntries
+			const allocatedFileEntries = fileEntries
 				.map(({ fileName, content }) => {
+					const entry = {
+						fileName,
+						pageNumber: nextPageNumber,
+						offset: fileContentOffset,
+						content
+					};
+
+					fileContentOffset += content.length;
+					
+					return entry;
+				});
+			console.log(allocatedFileEntries);
+
+			const fileEntriesTable = allocatedFileEntries
+				.map(({ fileName, pageNumber, offset, content }) => {
 					const entry = [
 						...stringToPaddedByteArray(fileName, fileEntryFormat.name),
-						...toBytePair(2), // TODO: Support paging
+						...toBytePair(pageNumber), // TODO: Support paging
 						...toBytePair(content.length),
-						...toBytePair(fileContentOffset)
+						...toBytePair(offset)
 					];
-					
-					fileContentOffset += content.length;
 					
 					return entry;
 				});
