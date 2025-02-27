@@ -87,9 +87,7 @@
 		generateInternalFiles: (project) => {
 			const obj = that.generateObj(project);
 
-			console.log(obj.maps);
 			const maps = Object.fromEntries(obj.maps.map(m => [m.fileName, m.content]));
-			console.log(maps);
 
 			return {
 				'main.pal': padArrayEnd(obj.palette, 16, 0),
@@ -99,7 +97,7 @@
 				...maps
 			};			
 		},
-
+		
 		generateInternalFileSystem: (project) => {
 			const internalFiles = that.generateInternalFiles(project);
 			const fileEntries = Object.keys(internalFiles).sort()
@@ -119,30 +117,69 @@
 				...stringToPaddedByteArray('rsc', 4),
 				...toBytePair(fileEntries.length)
 			];
-			
+
 			const fileContentInitialOffset = header.length + fileEntriesSize;
 			
+			const PAGE_SIZE = 16 * 1024;
+			const INITIAL_PAGE = 2;
+			
+			// For now, uses a simplistic page allocation
+			let nextPageNumber = INITIAL_PAGE;
 			let fileContentOffset = fileContentInitialOffset;
-			const fileEntriesTable = fileEntries
+			const allocatedFileEntries = fileEntries
 				.map(({ fileName, content }) => {
-					const entry = [
-						...stringToPaddedByteArray(fileName, fileEntryFormat.name),
-						...toBytePair(2), // TODO: Support paging
-						...toBytePair(content.length),
-						...toBytePair(fileContentOffset)
-					];
+					if (fileContentOffset + content.length > PAGE_SIZE) {
+						nextPageNumber++;
+						fileContentOffset = 0;
+					}
 					
+					const entry = {
+						fileName,
+						pageNumber: nextPageNumber,
+						offset: fileContentOffset,
+						contentLength: content.length,
+						content
+					};
+
 					fileContentOffset += content.length;
 					
 					return entry;
 				});
-			const fileContents = fileEntries.map(o => o.content);
 
-			return [
-				...header, 
-				..._.flatten(fileEntriesTable), 
-				..._.flatten(fileContents)
+			const fileEntriesTable = allocatedFileEntries
+				.map(({ fileName, pageNumber, offset, content }) => {
+					const entry = [
+						...stringToPaddedByteArray(fileName, fileEntryFormat.name),
+						...toBytePair(pageNumber),
+						...toBytePair(content.length),
+						...toBytePair(offset)
+					];
+					
+					return entry;
+				});
+				
+			const pages = [
+				[...header, ..._.flatten(fileEntriesTable)]
 			];
+			allocatedFileEntries.forEach(({ fileName, pageNumber, offset, content }) => {
+				const pageIndex = pageNumber - INITIAL_PAGE;
+				const pageData = pages[pageIndex] || [];
+				
+				if (pageData.length < PAGE_SIZE) {
+					pageData.length = PAGE_SIZE;
+					for (let idx = 0; idx < PAGE_SIZE; idx++) {
+						pageData[idx] = pageData[idx] || 0;
+					}
+				}
+				
+				content.forEach((byte, idx) => {
+					pageData[offset + idx] = byte;
+				});
+				
+				pages[pageIndex] = pageData;
+			});
+			
+			return _.flatten(pages);
 		},
 		
 		generateBlob: (project) => {
