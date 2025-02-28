@@ -548,12 +548,17 @@ var tinyMapEditor = (function() {
 			
 			console.log('tileCombinations', tileCombinations);
 			
-			const { h, newTd, newTh, newDataCheckbox, populateModalDialog } = DomUtil;
+			const { h, newTr, newTd, newTh, newDataCheckbox, populateModalDialog } = DomUtil;
 
 			const headerRow = tileCombinations.map((row, idx) => newTh(this.generateSingleTileCanvas(idx + 1)));
 
+			const dataRows = tileCombinations.map((tileRow, idx) => 
+				newTr(this.generateSingleTileCanvas(idx + 1))
+			);
+
 			const table = h('table', {}, 
-				h('tr', {}, newTh(), ...headerRow)
+				h('tr', {}, newTh(), ...headerRow),
+				...dataRows
 			);
 
 			populateModalDialog(tileCombinationsDialog, 'Tile Combinations', table);

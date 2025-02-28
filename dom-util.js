@@ -32,8 +32,10 @@
 	
 	const getEventTarget = event => event.target || event.srcElement;
 	
+	const newTr = (...children) => h('tr', {}, ...children);
 	const newTd = (...children) => h('td', {}, ...children);
 	const newTh = (...children) => h('th', {}, ...children);
+	
 	const newDiv = (...children) => h('div', {}, ...children);
 	const newLabel = (...children) => h('label', {}, ...children);
 	
@@ -88,7 +90,8 @@
 	
 	window.DomUtil = {
 		h, getEventTarget,
-		newTd, newTh, newDiv, newLabel,
+		newTr, newTd, newTh,
+		newDiv, newLabel,
 		newInput, newCheckbox,
 		newDataInput, newDataCheckbox,
 		populateModalDialog
