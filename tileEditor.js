@@ -23,6 +23,7 @@ var tinyMapEditor = (function() {
 		mapId,
         tiles,
         tileAttrs,
+		tileCombinations,
 		projectInfo,
 
         player,
@@ -526,7 +527,27 @@ var tinyMapEditor = (function() {
 			populateModalDialog(tileAttrsDialog, 'Tile Attributes', table);
 		},
 		
+		prepareTileCombinationsStructure : function() {
+			if (!tileCombinations) {
+				tileCombinations = [];
+			}
+			
+			const tileCount = this.getTileCount();
+			
+			tileCombinations.length = tileCount;
+			tileCombinations = _.map(tileCombinations, tileRow => {
+				if (!tileRow) tileRow = [];
+				tileRow.length = tileCount;
+				tileRow = _.map(tileRow, cell => cell || 0);
+				return tileRow;
+			});
+		},
+		
 		showTileCombinationsPopup : function() {
+			this.prepareTileCombinationsStructure();
+			
+			console.log('tileCombinations', tileCombinations);
+			
 			const { h, newTd, newDataCheckbox, populateModalDialog } = DomUtil;
 			populateModalDialog(tileCombinationsDialog, 'Tile Combinations');
 		},
@@ -689,8 +710,7 @@ var tinyMapEditor = (function() {
                 _this.drawTool();
             }, false);
 			
-			tileAttrsButton.addEventListener('click', () => _this.showTileAttrsPopup());
-			
+			tileAttrsButton.addEventListener('click', () => _this.showTileAttrsPopup());			
 			tileCombinationsButton.addEventListener('click', () => _this.showTileCombinationsPopup());
 			
 			/**
