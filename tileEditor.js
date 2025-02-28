@@ -34,6 +34,9 @@ var tinyMapEditor = (function() {
 		tileAttrsButton = getById('tileAttrsButton'),
 		tileAttrsDialog = getById('tileAttrsDialog'),
 		
+		tileCombinationsButton = getById('tileCombinationsButton'),
+		tileCombinationsDialog = getById('tileCombinationsDialog'),
+
 		projectInfoButton = getById('projectInfoButton'),
 		projectInfoDialog = getById('projectInfoDialog'),
 		loadProjectInput = getById('loadProjectInput'),
@@ -523,6 +526,11 @@ var tinyMapEditor = (function() {
 			populateModalDialog(tileAttrsDialog, 'Tile Attributes', table);
 		},
 		
+		showTileCombinationsPopup : function() {
+			const { h, newTd, newDataCheckbox, populateModalDialog } = DomUtil;
+			populateModalDialog(tileCombinationsDialog, 'Tile Combinations');
+		},
+
 		prepareProjectInfoStructure : function() {
 			if (!projectInfo) projectInfo = {};
 			
@@ -682,6 +690,8 @@ var tinyMapEditor = (function() {
             }, false);
 			
 			tileAttrsButton.addEventListener('click', () => _this.showTileAttrsPopup());
+			
+			tileCombinationsButton.addEventListener('click', () => _this.showTileCombinationsPopup());
 			
 			/**
 			 * Map list events.
