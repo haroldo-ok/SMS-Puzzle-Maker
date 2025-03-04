@@ -550,9 +550,26 @@ var tinyMapEditor = (function() {
 		
 		showTileCombinationChoicePopup : function(cell) {
 			const { h, newDiv, newLabel, newInput, newDataInput, populateModalDialog } = DomUtil;
+			
+			const tileScreenSize = tileSize * tileZoom;
+
+			const destTileElement = cell.resultTile ?
+				this.generateSingleTileCanvas(cell.resultTile) :
+				h('div', {
+					class: 'tileCombination', 
+					style: `width: ${tileScreenSize}px; height: ${tileScreenSize}px`
+				});
+				
 
 			populateModalDialog(tileCombinationChoiceDialog, 'Choose Tile Combination',
-				newDiv(`Source tile ${cell.sourceTile} + Dest tile ${cell.destTile} => ${cell.resultTile ? 'Tile ' + cell.resultTile : 'Nothing'}`)
+				newDiv(`Source tile ${cell.sourceTile} + Dest tile ${cell.destTile} => ${cell.resultTile ? 'Tile ' + cell.resultTile : 'Nothing'}`),
+				newDiv(
+					this.generateSingleTileCanvas(cell.sourceTile),
+					'combined with',
+					this.generateSingleTileCanvas(cell.destTile),
+					'results in',
+					destTileElement
+				)
 			);
 		},
 		
