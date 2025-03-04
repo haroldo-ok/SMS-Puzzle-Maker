@@ -563,11 +563,12 @@ var tinyMapEditor = (function() {
 
 			populateModalDialog(tileCombinationChoiceDialog, 'Choose Tile Combination',
 				newDiv(`Source tile ${cell.sourceTile} + Dest tile ${cell.destTile} => ${cell.resultTile ? 'Tile ' + cell.resultTile : 'Nothing'}`),
-				newDiv(
+				h('div',
+					{ class: 'tileCombinationDisplay' },
 					this.generateSingleTileCanvas(cell.sourceTile),
-					'combined with',
+					newLabel('combined with'),
 					this.generateSingleTileCanvas(cell.destTile),
-					'results in',
+					newLabel('results in'),
 					destTileElement
 				)
 			);

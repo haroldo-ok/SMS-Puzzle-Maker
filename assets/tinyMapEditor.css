@@ -76,4 +76,11 @@ textarea { width: 400px; height: 200px; margin: 0; font-family: monospace }
 .tileCombination {
 	display: inline-block;
 	border: 1px dashed gray;
+	cursor: pointer;
+}
+
+.tileCombinationDisplay > * {
+	vertical-align: top;
+	margin-right: 0.5em;
+	cursor: default;
 }
