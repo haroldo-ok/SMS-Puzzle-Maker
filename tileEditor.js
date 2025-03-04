@@ -535,10 +535,14 @@ var tinyMapEditor = (function() {
 			const tileCount = this.getTileCount();
 			
 			tileCombinations.length = tileCount;
-			tileCombinations = _.map(tileCombinations, tileRow => {
+			tileCombinations = _.map(tileCombinations, (tileRow, rowIndex) => {
 				if (!tileRow) tileRow = [];
 				tileRow.length = tileCount;
-				tileRow = _.map(tileRow, cell => cell || 0);
+				tileRow = _.map(tileRow, (cell, colIndex) => cell || {
+					rowIndex,
+					colIndex,
+					tileIndex: 0
+				});
 				return tileRow;
 			});
 		},
