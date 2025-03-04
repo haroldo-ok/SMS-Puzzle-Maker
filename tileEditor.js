@@ -23,6 +23,7 @@ var tinyMapEditor = (function() {
 		mapId,
         tiles,
         tileAttrs,
+		tileCombinations,
 		projectInfo,
 
         player,
@@ -34,6 +35,9 @@ var tinyMapEditor = (function() {
 		tileAttrsButton = getById('tileAttrsButton'),
 		tileAttrsDialog = getById('tileAttrsDialog'),
 		
+		tileCombinationsButton = getById('tileCombinationsButton'),
+		tileCombinationsDialog = getById('tileCombinationsDialog'),
+
 		projectInfoButton = getById('projectInfoButton'),
 		projectInfoDialog = getById('projectInfoDialog'),
 		loadProjectInput = getById('loadProjectInput'),
@@ -197,6 +201,23 @@ var tinyMapEditor = (function() {
 			tiles = tiles || [];
 			if (!tiles[row]) tiles[row] = [];
 			tiles[row][col] = srcTile.tileIndex;
+		},
+		
+		generateSingleTileCanvas : function(tileIndex) {
+			const { h } = DomUtil;
+
+			const localSrcTile = this.getSrcTileCoordByIndex(tileIndex);
+			
+			const individualTileCanvas = h('canvas', { 
+				width: tileSize, 
+				height: tileSize,
+				style: `width: ${tileSize}px; zoom: ${tileZoom}`
+			});
+			
+			const individualTileCtx = individualTileCanvas.getContext('2d');
+			this.setTileByCoord(0, 0, localSrcTile, individualTileCtx);
+			
+			return individualTileCanvas;
 		},
 
         drawTool : function() {
@@ -483,29 +504,14 @@ var tinyMapEditor = (function() {
 				this.saveTileAttrs();
 			}
 			const checkboxAttrs = { '@afterclick': handleCheckboxAfterClick };
-			
-			const generateSingleTileCanvas = tileIndex => {
-				const localSrcTile = this.getSrcTileCoordByIndex(tileIndex);
-				
-				const individualTileCanvas = h('canvas', { 
-					width: tileSize, 
-					height: tileSize,
-					style: `width: ${tileSize}px; zoom: ${tileZoom}`
-				});
-				
-				const individualTileCtx = individualTileCanvas.getContext('2d');
-				this.setTileByCoord(0, 0, localSrcTile, individualTileCtx);
-				
-				return individualTileCanvas;
-			}
-			
+						
 			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?', 'Can be pushed?']
 				.map(name => h('th', {}, name));			
 				
 			const dataRows = tileAttrs.map(tileAttr => 
 				h('tr', {}, 
 					newTd('' + tileAttr.tileIndex),
-					newTd(generateSingleTileCanvas(tileAttr.tileIndex)),
+					newTd(this.generateSingleTileCanvas(tileAttr.tileIndex)),
 					newTd(newDataCheckbox(tileAttr, 'isSolid', { ...checkboxAttrs, title: `Is tile ${tileAttr.tileIndex} solid?` })),
 					newTd(newDataCheckbox(tileAttr, 'isPlayerStart', { ...checkboxAttrs, title: `Is tile ${tileAttr.tileIndex} a player start?` })),
 					newTd(newDataCheckbox(tileAttr, 'isPlayerEnd', { ...checkboxAttrs, title: `Is tile ${tileAttr.tileIndex} a player end?` })),
@@ -521,6 +527,43 @@ var tinyMapEditor = (function() {
 			populateModalDialog(tileAttrsDialog, 'Tile Attributes', table);
 		},
 		
+		prepareTileCombinationsStructure : function() {
+			if (!tileCombinations) {
+				tileCombinations = [];
+			}
+			
+			const tileCount = this.getTileCount();
+			
+			tileCombinations.length = tileCount;
+			tileCombinations = _.map(tileCombinations, tileRow => {
+				if (!tileRow) tileRow = [];
+				tileRow.length = tileCount;
+				tileRow = _.map(tileRow, cell => cell || 0);
+				return tileRow;
+			});
+		},
+		
+		showTileCombinationsPopup : function() {
+			this.prepareTileCombinationsStructure();
+			
+			console.log('tileCombinations', tileCombinations);
+			
+			const { h, newTr, newTd, newTh, newDataCheckbox, populateModalDialog } = DomUtil;
+
+			const headerRow = tileCombinations.map((row, idx) => newTh(this.generateSingleTileCanvas(idx + 1)));
+
+			const dataRows = tileCombinations.map((tileRow, idx) => 
+				newTr(this.generateSingleTileCanvas(idx + 1))
+			);
+
+			const table = h('table', {}, 
+				h('tr', {}, newTh(), ...headerRow),
+				...dataRows
+			);
+
+			populateModalDialog(tileCombinationsDialog, 'Tile Combinations', table);
+		},
+
 		prepareProjectInfoStructure : function() {
 			if (!projectInfo) projectInfo = {};
 			
@@ -679,7 +722,8 @@ var tinyMapEditor = (function() {
                 _this.drawTool();
             }, false);
 			
-			tileAttrsButton.addEventListener('click', () => _this.showTileAttrsPopup());
+			tileAttrsButton.addEventListener('click', () => _this.showTileAttrsPopup());			
+			tileCombinationsButton.addEventListener('click', () => _this.showTileCombinationsPopup());
 			
 			/**
 			 * Map list events.
