@@ -37,6 +37,7 @@ var tinyMapEditor = (function() {
 		
 		tileCombinationsButton = getById('tileCombinationsButton'),
 		tileCombinationsDialog = getById('tileCombinationsDialog'),
+		tileCombinationChoiceDialog = getById('tileCombinationChoiceDialog'),
 
 		projectInfoButton = getById('projectInfoButton'),
 		projectInfoDialog = getById('projectInfoDialog'),
@@ -539,12 +540,20 @@ var tinyMapEditor = (function() {
 				if (!tileRow) tileRow = [];
 				tileRow.length = tileCount;
 				tileRow = _.map(tileRow, (cell, colIndex) => cell || {
-					rowIndex,
-					colIndex,
-					tileIndex: 0
+					sourceTile: rowIndex + 1,
+					destTile: colIndex + 1,
+					resultTile: 0
 				});
 				return tileRow;
 			});
+		},
+		
+		showTileCombinationChoicePopup : function(cell) {
+			const { h, newDiv, newLabel, newInput, newDataInput, populateModalDialog } = DomUtil;
+
+			populateModalDialog(tileCombinationChoiceDialog, 'Choose Tile Combination',
+				newDiv(`Source tile ${cell.sourceTile} + Dest tile ${cell.destTile} => ${cell.resultTile ? 'Tile ' + cell.resultTile : 'Nothing'}`)
+			);
 		},
 		
 		showTileCombinationsPopup : function() {
@@ -561,7 +570,8 @@ var tinyMapEditor = (function() {
 			const dataRows = tileCombinations.map((tileRow, rowIndex) => {
 				const dataCells = tileRow.map(cell => newTd(h('div', {
 					class: 'tileCombination', 
-					style: `width: ${tileScreenSize}px; height: ${tileScreenSize}px`
+					style: `width: ${tileScreenSize}px; height: ${tileScreenSize}px`,
+					'@click': () => this.showTileCombinationChoicePopup(cell)
 				})));
 				return newTr(
 					newTd(this.generateSingleTileCanvas(rowIndex + 1)),

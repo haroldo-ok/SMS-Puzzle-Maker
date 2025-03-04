@@ -73,6 +73,6 @@ textarea { width: 400px; height: 200px; margin: 0; font-family: monospace }
 }
 
 /*************************************** Tile Combinations Dialog */
-#tileCombinationsDialog .tileCombination {
+.tileCombination {
 	border: 1px dashed gray;
 }
