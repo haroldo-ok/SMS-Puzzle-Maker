@@ -553,13 +553,14 @@ var tinyMapEditor = (function() {
 			
 			const tileScreenSize = tileSize * tileZoom;
 
-			const destTileElement = cell.resultTile ?
+			const resultTileElement = cell.resultTile ?
 				this.generateSingleTileCanvas(cell.resultTile) :
 				h('div', {
 					class: 'tileCombination', 
 					style: `width: ${tileScreenSize}px; height: ${tileScreenSize}px`
 				});
 				
+			const destTileOptions = tileCombinations.map((tileRow, rowIndex) => this.generateSingleTileCanvas(rowIndex + 1));
 
 			populateModalDialog(tileCombinationChoiceDialog, 'Choose Tile Combination',
 				newDiv(`Source tile ${cell.sourceTile} + Dest tile ${cell.destTile} => ${cell.resultTile ? 'Tile ' + cell.resultTile : 'Nothing'}`),
@@ -569,7 +570,12 @@ var tinyMapEditor = (function() {
 					newLabel('combined with'),
 					this.generateSingleTileCanvas(cell.destTile),
 					newLabel('results in'),
-					destTileElement
+					resultTileElement
+				),
+				newDiv('Choose a new result tile:'),
+				h('div',
+					{ class: 'tileCombinationChoiceContainer' },
+					...destTileOptions
 				)
 			);
 		},
