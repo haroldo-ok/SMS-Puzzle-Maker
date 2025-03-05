@@ -84,3 +84,7 @@ textarea { width: 400px; height: 200px; margin: 0; font-family: monospace }
 	margin-right: 0.5em;
 	cursor: default;
 }
+
+.tileCombinationChoiceContainer {
+	max-width: 320px;
+}

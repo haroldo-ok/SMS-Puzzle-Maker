@@ -560,7 +560,12 @@ var tinyMapEditor = (function() {
 					style: `width: ${tileScreenSize}px; height: ${tileScreenSize}px`
 				});
 				
-			const destTileOptions = tileCombinations.map((tileRow, rowIndex) => this.generateSingleTileCanvas(rowIndex + 1));
+			const destTileOptions = tileCombinations.map((tileRow, rowIndex) => 
+				h('span', 
+					{ title: `Tile ${rowIndex + 1}` },
+					this.generateSingleTileCanvas(rowIndex + 1)
+				)
+			);
 
 			populateModalDialog(tileCombinationChoiceDialog, 'Choose Tile Combination',
 				newDiv(`Source tile ${cell.sourceTile} + Dest tile ${cell.destTile} => ${cell.resultTile ? 'Tile ' + cell.resultTile : 'Nothing'}`),
