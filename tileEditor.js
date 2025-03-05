@@ -551,6 +551,12 @@ var tinyMapEditor = (function() {
 		showTileCombinationChoicePopup : function(cell) {
 			const { h, newDiv, newLabel, newInput, newDataInput, populateModalDialog } = DomUtil;
 			
+			const handleResultTileClick = resultTile => {
+				cell.resultTile = resultTile;
+				tileCombinationChoiceDialog.close();
+				console.log('new tileCombinations', tileCombinations);
+			};
+			
 			const tileScreenSize = tileSize * tileZoom;
 
 			const resultTileElement = cell.resultTile ?
@@ -560,12 +566,17 @@ var tinyMapEditor = (function() {
 					style: `width: ${tileScreenSize}px; height: ${tileScreenSize}px`
 				});
 				
-			const destTileOptions = tileCombinations.map((tileRow, rowIndex) => 
-				h('span', 
-					{ title: `Tile ${rowIndex + 1}` },
-					this.generateSingleTileCanvas(rowIndex + 1)
-				)
-			);
+			const destTileOptions = tileCombinations
+				.map((tileRow, rowIndex) => rowIndex + 1)
+				.map(resultTile => 
+					h('span', 
+						{
+							title: `Tile ${resultTile}`,
+							'@click': () => handleResultTileClick(resultTile)
+						},
+						this.generateSingleTileCanvas(resultTile)
+					)
+				);
 
 			populateModalDialog(tileCombinationChoiceDialog, 'Choose Tile Combination',
 				newDiv(`Source tile ${cell.sourceTile} + Dest tile ${cell.destTile} => ${cell.resultTile ? 'Tile ' + cell.resultTile : 'Nothing'}`),
