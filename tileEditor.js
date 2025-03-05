@@ -555,6 +555,7 @@ var tinyMapEditor = (function() {
 				cell.resultTile = resultTile;
 				tileCombinationChoiceDialog.close();
 				console.log('new tileCombinations', tileCombinations);
+				this.showTileCombinationsPopup();
 			};
 			
 			const tileScreenSize = tileSize * tileZoom;
@@ -607,12 +608,18 @@ var tinyMapEditor = (function() {
 
 			const headerRow = tileCombinations.map((row, idx) => newTh(this.generateSingleTileCanvas(idx + 1)));
 
-			const dataRows = tileCombinations.map((tileRow, rowIndex) => {
-				const dataCells = tileRow.map(cell => newTd(h('div', {
+			const createResultTileElement = cell => cell.resultTile ?
+				this.generateSingleTileCanvas(cell.resultTile) :
+				h('div', {
 					class: 'tileCombination', 
-					style: `width: ${tileScreenSize}px; height: ${tileScreenSize}px`,
-					'@click': () => this.showTileCombinationChoicePopup(cell)
-				})));
+					style: `width: ${tileScreenSize}px; height: ${tileScreenSize}px`
+				});
+
+			const dataRows = tileCombinations.map((tileRow, rowIndex) => {
+				const dataCells = tileRow.map(cell => newTd(h('div', 
+					{ '@click': () => this.showTileCombinationChoicePopup(cell) },
+					createResultTileElement(cell)
+				)));
 				return newTr(
 					newTd(this.generateSingleTileCanvas(rowIndex + 1)),
 					...dataCells
