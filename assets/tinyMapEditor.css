@@ -71,3 +71,28 @@ textarea { width: 400px; height: 200px; margin: 0; font-family: monospace }
 #tileAttrsDialog tr:hover {
 	background: #cccccc;
 }
+
+/*************************************** Tile Combinations Dialog */
+.tileCombination {
+	display: inline-block;
+	border: 1px dashed gray;
+	cursor: pointer;
+}
+
+.tileCombinationDisplay > * {
+	vertical-align: top;
+	margin-right: 0.5em;
+	cursor: default;
+}
+
+.tileCombinationChoiceContainer {
+	max-width: 320px;
+}
+
+.tileCombinationChoiceContainer > * {
+	border: 1px solid rgba(0, 0, 0, 0);
+}
+
+.tileCombinationChoiceContainer > *:hover {
+	border: 1px dashed gray;
+}

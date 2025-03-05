@@ -37,6 +37,7 @@ var tinyMapEditor = (function() {
 		
 		tileCombinationsButton = getById('tileCombinationsButton'),
 		tileCombinationsDialog = getById('tileCombinationsDialog'),
+		tileCombinationChoiceDialog = getById('tileCombinationChoiceDialog'),
 
 		projectInfoButton = getById('projectInfoButton'),
 		projectInfoDialog = getById('projectInfoDialog'),
@@ -535,12 +536,65 @@ var tinyMapEditor = (function() {
 			const tileCount = this.getTileCount();
 			
 			tileCombinations.length = tileCount;
-			tileCombinations = _.map(tileCombinations, tileRow => {
+			tileCombinations = _.map(tileCombinations, (tileRow, rowIndex) => {
 				if (!tileRow) tileRow = [];
 				tileRow.length = tileCount;
-				tileRow = _.map(tileRow, cell => cell || 0);
+				tileRow = _.map(tileRow, (cell, colIndex) => cell || {
+					sourceTile: rowIndex + 1,
+					destTile: colIndex + 1,
+					resultTile: 0
+				});
 				return tileRow;
 			});
+		},
+		
+		showTileCombinationChoicePopup : function(cell) {
+			const { h, newDiv, newLabel, newInput, newDataInput, populateModalDialog } = DomUtil;
+			
+			const handleResultTileClick = resultTile => {
+				cell.resultTile = resultTile;
+				tileCombinationChoiceDialog.close();
+				console.log('new tileCombinations', tileCombinations);
+				this.showTileCombinationsPopup();
+			};
+			
+			const tileScreenSize = tileSize * tileZoom;
+
+			const resultTileElement = cell.resultTile ?
+				this.generateSingleTileCanvas(cell.resultTile) :
+				h('div', {
+					class: 'tileCombination', 
+					style: `width: ${tileScreenSize}px; height: ${tileScreenSize}px`
+				});
+				
+			const destTileOptions = tileCombinations
+				.map((tileRow, rowIndex) => rowIndex + 1)
+				.map(resultTile => 
+					h('span', 
+						{
+							title: `Tile ${resultTile}`,
+							'@click': () => handleResultTileClick(resultTile)
+						},
+						this.generateSingleTileCanvas(resultTile)
+					)
+				);
+
+			populateModalDialog(tileCombinationChoiceDialog, 'Choose Tile Combination',
+				newDiv(`Source tile ${cell.sourceTile} + Dest tile ${cell.destTile} => ${cell.resultTile ? 'Tile ' + cell.resultTile : 'Nothing'}`),
+				h('div',
+					{ class: 'tileCombinationDisplay' },
+					this.generateSingleTileCanvas(cell.sourceTile),
+					newLabel('combined with'),
+					this.generateSingleTileCanvas(cell.destTile),
+					newLabel('results in'),
+					resultTileElement
+				),
+				newDiv('Choose a new result tile:'),
+				h('div',
+					{ class: 'tileCombinationChoiceContainer' },
+					...destTileOptions
+				)
+			);
 		},
 		
 		showTileCombinationsPopup : function() {
@@ -549,12 +603,28 @@ var tinyMapEditor = (function() {
 			console.log('tileCombinations', tileCombinations);
 			
 			const { h, newTr, newTd, newTh, newDataCheckbox, populateModalDialog } = DomUtil;
+			
+			const tileScreenSize = tileSize * tileZoom;
 
 			const headerRow = tileCombinations.map((row, idx) => newTh(this.generateSingleTileCanvas(idx + 1)));
 
-			const dataRows = tileCombinations.map((tileRow, idx) => 
-				newTr(this.generateSingleTileCanvas(idx + 1))
-			);
+			const createResultTileElement = cell => cell.resultTile ?
+				this.generateSingleTileCanvas(cell.resultTile) :
+				h('div', {
+					class: 'tileCombination', 
+					style: `width: ${tileScreenSize}px; height: ${tileScreenSize}px`
+				});
+
+			const dataRows = tileCombinations.map((tileRow, rowIndex) => {
+				const dataCells = tileRow.map(cell => newTd(h('div', 
+					{ '@click': () => this.showTileCombinationChoicePopup(cell) },
+					createResultTileElement(cell)
+				)));
+				return newTr(
+					newTd(this.generateSingleTileCanvas(rowIndex + 1)),
+					...dataCells
+				);
+			});
 
 			const table = h('table', {}, 
 				h('tr', {}, newTh(), ...headerRow),
