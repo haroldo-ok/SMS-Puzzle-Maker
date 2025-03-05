@@ -88,3 +88,11 @@ textarea { width: 400px; height: 200px; margin: 0; font-family: monospace }
 .tileCombinationChoiceContainer {
 	max-width: 320px;
 }
+
+.tileCombinationChoiceContainer > * {
+	border: 1px solid rgba(0, 0, 0, 0);
+}
+
+.tileCombinationChoiceContainer > *:hover {
+	border: 1px dashed gray;
+}
