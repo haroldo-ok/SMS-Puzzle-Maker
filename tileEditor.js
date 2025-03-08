@@ -557,6 +557,34 @@ var tinyMapEditor = (function() {
 			storage.put('tileCombinations', this.getTileCombinationsObject());
 		},
 		
+		loadTileCombinations : function() {
+			const savedTileCombinations = storage.get('tileCombinations');
+			if (!savedTileCombinations) {
+				tileCombinations = null;
+				this.prepareTileCombinationsStructure();
+				return;
+			}
+
+			const tileCount = this.getTileCount();
+			
+			tileCombinations = savedTileCombinations.reduce((tileGrid, cell) => {
+				const rowIndex = cell.sourceTile - 1;
+				const colIndex = cell.destTile - 1;
+				
+				const tileRow = tileGrid[rowIndex] || [];
+				
+				tileGrid.length = tileCount;
+				tileRow.length = tileCount;
+								
+				tileRow[colIndex] = cell;
+				tileGrid[rowIndex] = tileRow;
+				
+				return tileGrid;
+			}, []);
+			
+			this.prepareTileCombinationsStructure();
+		},
+
 		showTileCombinationChoicePopup : function(cell) {
 			const { h, newDiv, newLabel, newInput, newDataInput, populateModalDialog } = DomUtil;
 			
@@ -934,6 +962,7 @@ var tinyMapEditor = (function() {
 			
 			this.loadTileAttrs();
 			this.loadProjectInfo();
+			this.loadTileCombinations();
 			
 			let storedSrc = storedTileSet && storedTileSet.src || 'assets/default_tilemap.png';
 			if (storedSrc.startsWith('http:') || storedSrc.startsWith('https:')) {
