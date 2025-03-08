@@ -507,7 +507,7 @@ var tinyMapEditor = (function() {
 			const checkboxAttrs = { '@afterclick': handleCheckboxAfterClick };
 						
 			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?', 'Can be pushed?']
-				.map(name => h('th', {}, name));			
+				.map(name => h('th', {}, name));
 				
 			const dataRows = tileAttrs.map(tileAttr => 
 				h('tr', {}, 
@@ -521,7 +521,7 @@ var tinyMapEditor = (function() {
 			);
 			
 			const table = h('table', {}, 
-				h('tr', {}, ...headerRow),
+				h('tr', { class: 'sticky' }, ...headerRow),
 				...dataRows
 			);
 			
@@ -548,13 +548,51 @@ var tinyMapEditor = (function() {
 			});
 		},
 		
+		getTileCombinationsObject : function() {
+			this.prepareTileCombinationsStructure();
+			return _.flatten(tileCombinations).filter(({ resultTile }) => resultTile > 0);
+		},
+		
+		saveTileCombinations : function() {
+			storage.put('tileCombinations', this.getTileCombinationsObject());
+		},
+		
+		loadTileCombinations : function() {
+			const savedTileCombinations = storage.get('tileCombinations');
+			if (!savedTileCombinations) {
+				tileCombinations = null;
+				this.prepareTileCombinationsStructure();
+				return;
+			}
+
+			const tileCount = this.getTileCount();
+			
+			tileCombinations = savedTileCombinations.reduce((tileGrid, cell) => {
+				const rowIndex = cell.sourceTile - 1;
+				const colIndex = cell.destTile - 1;
+				
+				const tileRow = tileGrid[rowIndex] || [];
+				
+				tileGrid.length = tileCount;
+				tileRow.length = tileCount;
+								
+				tileRow[colIndex] = cell;
+				tileGrid[rowIndex] = tileRow;
+				
+				return tileGrid;
+			}, []);
+			
+			this.prepareTileCombinationsStructure();
+		},
+
 		showTileCombinationChoicePopup : function(cell) {
-			const { h, newDiv, newLabel, newInput, newDataInput, populateModalDialog } = DomUtil;
+			const { h, newDiv, newLabel, newInput, newButton, newDataInput, populateModalDialog } = DomUtil;
 			
 			const handleResultTileClick = resultTile => {
-				cell.resultTile = resultTile;
+				cell.resultTile = resultTile;				
+				this.saveTileCombinations();				
+
 				tileCombinationChoiceDialog.close();
-				console.log('new tileCombinations', tileCombinations);
 				this.showTileCombinationsPopup();
 			};
 			
@@ -590,6 +628,7 @@ var tinyMapEditor = (function() {
 					resultTileElement
 				),
 				newDiv('Choose a new result tile:'),
+				newDiv(newButton('Clear selection', { '@click': () => handleResultTileClick(0) })),
 				h('div',
 					{ class: 'tileCombinationChoiceContainer' },
 					...destTileOptions
@@ -599,8 +638,6 @@ var tinyMapEditor = (function() {
 		
 		showTileCombinationsPopup : function() {
 			this.prepareTileCombinationsStructure();
-			
-			console.log('tileCombinations', tileCombinations);
 			
 			const { h, newTr, newTd, newTh, newDataCheckbox, populateModalDialog } = DomUtil;
 			
@@ -626,8 +663,8 @@ var tinyMapEditor = (function() {
 				);
 			});
 
-			const table = h('table', {}, 
-				h('tr', {}, newTh(), ...headerRow),
+			const table = h('table', { class: 'tileCombinations' }, 
+				h('tr', { class: 'sticky' }, newTh(), ...headerRow),
 				...dataRows
 			);
 
@@ -689,6 +726,7 @@ var tinyMapEditor = (function() {
 					name: tileSetName,
 					src: sprite.src,
 					attributes: tileAttrs,
+					combinations: this.getTileCombinationsObject(),
 					forMasterSystem: tileSetForSms
 				}
 			};
@@ -721,13 +759,16 @@ var tinyMapEditor = (function() {
 			this.selectMapById(project.maps[0].id);
 			this.saveMap();
 			
-			const { attributes, ...otherTilesetData } = project.tileSet;
+			const { attributes, combinations, ...otherTilesetData } = project.tileSet;
 			storage.put('tileSet', otherTilesetData);
 			
 			tileAttrs = attributes;
 			this.prepareTileAttrsStructure();
 			this.saveTileAttrs();
 			
+			storage.put('tileCombinations', combinations);
+			this.loadTileCombinations();
+
 			projectInfo = project.projectInfo;
 			this.prepareProjectInfoStructure();
 			this.saveProjectInfo();
@@ -924,6 +965,7 @@ var tinyMapEditor = (function() {
 			
 			this.loadTileAttrs();
 			this.loadProjectInfo();
+			this.loadTileCombinations();
 			
 			let storedSrc = storedTileSet && storedTileSet.src || 'assets/default_tilemap.png';
 			if (storedSrc.startsWith('http:') || storedSrc.startsWith('https:')) {

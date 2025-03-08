@@ -41,6 +41,7 @@
 	
 	const newInput = (type, attributes) => h('input', { type, ...attributes });
 	const newCheckbox = attributes => newInput('checkbox', { ...attributes });
+	const newButton = (text, attributes) => h('button', { ...attributes }, text);
 
 	const newDataInput = (object, attrName, type, attributes = {}) => {
 		const handleChange = e => {
@@ -92,7 +93,7 @@
 		h, getEventTarget,
 		newTr, newTd, newTh,
 		newDiv, newLabel,
-		newInput, newCheckbox,
+		newInput, newCheckbox, newButton,
 		newDataInput, newDataCheckbox,
 		populateModalDialog
 	};
