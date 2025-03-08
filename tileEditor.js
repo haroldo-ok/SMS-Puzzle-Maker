@@ -548,13 +548,23 @@ var tinyMapEditor = (function() {
 			});
 		},
 		
+		getTileCombinationsObject : function() {
+			this.prepareTileCombinationsStructure();
+			return _.flatten(tileCombinations).filter(({ resultTile }) => resultTile > 0);
+		},
+		
+		saveTileCombinations : function() {
+			storage.put('tileCombinations', this.getTileCombinationsObject());
+		},
+		
 		showTileCombinationChoicePopup : function(cell) {
 			const { h, newDiv, newLabel, newInput, newDataInput, populateModalDialog } = DomUtil;
 			
 			const handleResultTileClick = resultTile => {
-				cell.resultTile = resultTile;
+				cell.resultTile = resultTile;				
+				this.saveTileCombinations();				
+
 				tileCombinationChoiceDialog.close();
-				console.log('new tileCombinations', tileCombinations);
 				this.showTileCombinationsPopup();
 			};
 			
