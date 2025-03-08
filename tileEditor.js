@@ -586,7 +586,7 @@ var tinyMapEditor = (function() {
 		},
 
 		showTileCombinationChoicePopup : function(cell) {
-			const { h, newDiv, newLabel, newInput, newDataInput, populateModalDialog } = DomUtil;
+			const { h, newDiv, newLabel, newInput, newButton, newDataInput, populateModalDialog } = DomUtil;
 			
 			const handleResultTileClick = resultTile => {
 				cell.resultTile = resultTile;				
@@ -628,6 +628,7 @@ var tinyMapEditor = (function() {
 					resultTileElement
 				),
 				newDiv('Choose a new result tile:'),
+				newDiv(newButton('Clear selection', { '@click': () => handleResultTileClick(0) })),
 				h('div',
 					{ class: 'tileCombinationChoiceContainer' },
 					...destTileOptions
@@ -637,8 +638,6 @@ var tinyMapEditor = (function() {
 		
 		showTileCombinationsPopup : function() {
 			this.prepareTileCombinationsStructure();
-			
-			console.log('tileCombinations', tileCombinations);
 			
 			const { h, newTr, newTd, newTh, newDataCheckbox, populateModalDialog } = DomUtil;
 			
