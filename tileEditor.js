@@ -727,6 +727,7 @@ var tinyMapEditor = (function() {
 					name: tileSetName,
 					src: sprite.src,
 					attributes: tileAttrs,
+					combinations: this.getTileCombinationsObject(),
 					forMasterSystem: tileSetForSms
 				}
 			};
