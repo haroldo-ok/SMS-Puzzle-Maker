@@ -664,8 +664,8 @@ var tinyMapEditor = (function() {
 				);
 			});
 
-			const table = h('table', {}, 
-				h('tr', {}, newTh(), ...headerRow),
+			const table = h('table', { class: 'tileCombinations' }, 
+				h('tr', { class: 'sticky' }, newTh(), ...headerRow),
 				...dataRows
 			);
 
