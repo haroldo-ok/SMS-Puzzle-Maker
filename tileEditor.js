@@ -760,13 +760,16 @@ var tinyMapEditor = (function() {
 			this.selectMapById(project.maps[0].id);
 			this.saveMap();
 			
-			const { attributes, ...otherTilesetData } = project.tileSet;
+			const { attributes, combinations, ...otherTilesetData } = project.tileSet;
 			storage.put('tileSet', otherTilesetData);
 			
 			tileAttrs = attributes;
 			this.prepareTileAttrsStructure();
 			this.saveTileAttrs();
 			
+			storage.put('tileCombinations', combinations);
+			this.loadTileCombinations();
+
 			projectInfo = project.projectInfo;
 			this.prepareProjectInfoStructure();
 			this.saveProjectInfo();
