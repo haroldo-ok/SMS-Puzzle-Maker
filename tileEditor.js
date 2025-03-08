@@ -507,7 +507,7 @@ var tinyMapEditor = (function() {
 			const checkboxAttrs = { '@afterclick': handleCheckboxAfterClick };
 						
 			const headerRow = ['#', 'Tile', 'Solid?', 'Player Start?', 'Player End?', 'Can be pushed?']
-				.map(name => h('th', {}, name));			
+				.map(name => h('th', {}, name));
 				
 			const dataRows = tileAttrs.map(tileAttr => 
 				h('tr', {}, 
@@ -521,7 +521,7 @@ var tinyMapEditor = (function() {
 			);
 			
 			const table = h('table', {}, 
-				h('tr', {}, ...headerRow),
+				h('tr', { class: 'sticky' }, ...headerRow),
 				...dataRows
 			);
 			
