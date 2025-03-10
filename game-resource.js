@@ -73,6 +73,8 @@
 						.reduce((acc, key, idx) => acc | ((attr[key] ? 1 : 0) << idx), 0);
 				});
 				
+			const combinations = tileSet.map(() => Array(tileSet.length).fill(0));
+				
 			const projectInfo = [project.tool.name, project.tool.version, project.projectInfo.name].map(stringToByteArray);
 				
 			return {
@@ -80,6 +82,7 @@
 				tileSet: _.flatten(tileSet),
 				tileAttributes: _.flatten(tileAttributes.map(toBytePair)),
 				projectInfo: _.flatten(projectInfo),
+				combinations: [toBytePair(tileSet.length), ..._.flatten(combinations)],
 				maps
 			};
 		},
@@ -94,6 +97,7 @@
 				'main.til': obj.tileSet,
 				'main.atr': obj.tileAttributes,
 				'project.inf': obj.projectInfo,
+				'merging.dat': obj.combinations,
 				...maps
 			};			
 		},
