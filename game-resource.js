@@ -75,7 +75,7 @@
 				
 			const combinations = tileSet.map(() => Array(tileSet.length).fill(0));
 			project.tileSet.combinations.forEach(({ sourceTile, destTile, resultTile }) => {
-				tileSet[sourceTile - 1, destTile - 1] = resultTile;
+				combinations[sourceTile - 1, destTile - 1] = resultTile;
 			});
 				
 			const projectInfo = [project.tool.name, project.tool.version, project.projectInfo.name].map(stringToByteArray);
@@ -85,7 +85,7 @@
 				tileSet: _.flatten(tileSet),
 				tileAttributes: _.flatten(tileAttributes.map(toBytePair)),
 				projectInfo: _.flatten(projectInfo),
-				combinations: [toBytePair(tileSet.length), ..._.flatten(combinations)],
+				combinations: _.flatten([toBytePair(tileSet.length), combinations]),
 				maps
 			};
 		},
