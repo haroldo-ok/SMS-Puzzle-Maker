@@ -326,7 +326,7 @@ char gameplay_loop() {
 					try_moving_actor_on_map(&player, map, 1, 0);
 				}
 				
-				joy_delay = 10;
+				joy_delay = 5;
 			}
 			
 			SMS_initSprites();
