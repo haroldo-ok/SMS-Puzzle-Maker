@@ -39,6 +39,9 @@ var tinyMapEditor = (function() {
 		tileCombinationsDialog = getById('tileCombinationsDialog'),
 		tileCombinationChoiceDialog = getById('tileCombinationChoiceDialog'),
 
+		playerSpriteButton = getById('playerSpriteButton'),
+		playerSpriteDialog = getById('playerSpriteDialog'),
+
 		projectInfoButton = getById('projectInfoButton'),
 		projectInfoDialog = getById('projectInfoDialog'),
 		loadProjectInput = getById('loadProjectInput'),
@@ -835,6 +838,7 @@ var tinyMapEditor = (function() {
 			
 			tileAttrsButton.addEventListener('click', () => _this.showTileAttrsPopup());			
 			tileCombinationsButton.addEventListener('click', () => _this.showTileCombinationsPopup());
+			playerSpriteButton.addEventListener('click', () => playerSpriteDialog.showModal());
 			
 			/**
 			 * Map list events.
