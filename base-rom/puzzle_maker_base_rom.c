@@ -50,6 +50,7 @@ const resource_header_format *resource_header = RESOURCE_BASE_ADDR;
 const resource_entry_format *resource_entries = RESOURCE_BASE_ADDR + sizeof(resource_header_format);
 
 resource_entry_format *tile_attrs;
+resource_entry_format *tile_combinations;
 char stage_clear;
 
 char map_data[9*16], map_floor[9*16];
@@ -133,6 +134,17 @@ unsigned int get_tile_attr(char tile_number) {
 	return tile_attr_p[tile_number - 1];	
 }
 
+char get_tile_combination(char source_tile, char dest_tile) {
+	if (!source_tile) source_tile = 1;
+	if (!dest_tile) dest_tile = 1;
+	
+	char *tile_combos = resource_get_pointer(tile_combinations);
+	unsigned int tile_count = *((unsigned int *) tile_combos);
+	tile_combos += 2;
+	
+	return tile_combos[tile_count * (source_tile - 1) + (dest_tile - 1)];
+}
+
 resource_map_format *load_map(int n) {
 	char map_file_name[14];
 	sprintf(map_file_name, "level%03d.map", n);
@@ -174,11 +186,22 @@ char try_pushing_tile_on_map(resource_map_format *map, char x, char y, signed ch
 	if (new_x >= map->width || new_y >= map->height) return 0;
 
 	char target_tile = get_map_tile(map, new_x, new_y);
+	char source_tile = get_map_tile(map, x, y);	
+	
+	char tile_combination = get_tile_combination(source_tile, target_tile);
+	if (tile_combination) {
+		char source_floor_tile = get_floor_tile(map, x, y);
+		
+		set_map_tile(map, x, y, source_floor_tile ? source_floor_tile : 1);
+		set_map_tile(map, new_x, new_y, tile_combination);
+		
+		return 1;
+	}
+	
 	unsigned int target_tile_attr = get_tile_attr(target_tile);	
 	
 	if (target_tile_attr & TILE_ATTR_SOLID) return 0;
 
-	char source_tile = get_map_tile(map, x, y);	
 	char source_floor_tile = get_floor_tile(map, x, y);
 	
 	set_map_tile(map, x, y, source_floor_tile ? source_floor_tile : 1);
@@ -282,6 +305,7 @@ char gameplay_loop() {
 		SMS_loadTiles(resource_get_pointer(resource_find("main.til")), 4, 256 * 32);
 		
 		tile_attrs = resource_find("main.atr");
+		tile_combinations = resource_find("merging.dat");
 		
 		resource_map_format *map = load_map(map_number);
 		if (!map) {
@@ -326,7 +350,7 @@ char gameplay_loop() {
 					try_moving_actor_on_map(&player, map, 1, 0);
 				}
 				
-				joy_delay = 10;
+				joy_delay = 8;
 			}
 			
 			SMS_initSprites();
@@ -369,7 +393,7 @@ char handle_title() {
 
 	SMS_setNextTileatXY(2, 21);
 	puts("Press any button to start");
-
+	
 	SMS_displayOn();
 	
 	wait_button_press();
@@ -403,6 +427,6 @@ void main() {
 }
 
 SMS_EMBED_SEGA_ROM_HEADER(9999,0); // code 9999 hopefully free, here this means 'homebrew'
-SMS_EMBED_SDSC_HEADER(0,5, 2025,02,25, "Haroldo-OK\\2025", "SMS-Puzzle-Maker base ROM",
+SMS_EMBED_SDSC_HEADER(0,6, 2025,03,18, "Haroldo-OK\\2025", "SMS-Puzzle-Maker base ROM",
   "Made for SMS-Puzzle-Maker - https://github.com/haroldo-ok/SMS-Puzzle-Maker.\n"
   "Built using devkitSMS & SMSlib - https://github.com/sverx/devkitSMS");

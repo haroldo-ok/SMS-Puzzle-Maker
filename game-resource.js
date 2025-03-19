@@ -42,6 +42,7 @@
 			
 			const tileSetW = Math.ceil(smsTileSet.mapW / 2);
 			const tileSetH = Math.ceil(smsTileSet.mapH / 2);
+			const tileSetSize = tileSetW * tileSetH;
 			
 			const tileSet = [];
 			for (let tileSetRow = 0; tileSetRow < tileSetH; tileSetRow++) {
@@ -73,6 +74,11 @@
 						.reduce((acc, key, idx) => acc | ((attr[key] ? 1 : 0) << idx), 0);
 				});
 				
+			const combinations = Array(tileSetSize).fill(0).map(() => Array(tileSetSize).fill(0));
+			project.tileSet.combinations.forEach(({ sourceTile, destTile, resultTile }) => {
+				combinations[sourceTile - 1][destTile - 1] = resultTile;
+			});
+				
 			const projectInfo = [project.tool.name, project.tool.version, project.projectInfo.name].map(stringToByteArray);
 				
 			return {
@@ -80,6 +86,7 @@
 				tileSet: _.flatten(tileSet),
 				tileAttributes: _.flatten(tileAttributes.map(toBytePair)),
 				projectInfo: _.flatten(projectInfo),
+				combinations: _.flatten([toBytePair(tileSetSize), combinations]),
 				maps
 			};
 		},
@@ -94,6 +101,7 @@
 				'main.til': obj.tileSet,
 				'main.atr': obj.tileAttributes,
 				'project.inf': obj.projectInfo,
+				'merging.dat': obj.combinations,
 				...maps
 			};			
 		},
