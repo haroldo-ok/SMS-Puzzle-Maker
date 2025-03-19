@@ -1,6 +1,6 @@
 var tinyMapEditor = (function() {
 	const APP_NAME = 'SMS-Puzzle-Maker';
-	const APP_VERSION = '0.20.0';	
+	const APP_VERSION = '0.21.0';	
 
     var win = window,
         doc = document,
