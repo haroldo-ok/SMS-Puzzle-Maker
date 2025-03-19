@@ -142,7 +142,7 @@ char get_tile_combination(char source_tile, char dest_tile) {
 	unsigned int tile_count = *((unsigned int *) tile_combos);
 	tile_combos += 2;
 	
-	return tile_combos[tile_count * source_tile + dest_tile];
+	return tile_combos[tile_count * (source_tile - 1) + (dest_tile - 1)];
 }
 
 resource_map_format *load_map(int n) {
@@ -393,6 +393,13 @@ char handle_title() {
 
 	SMS_setNextTileatXY(2, 21);
 	puts("Press any button to start");
+	
+	tile_combinations = resource_find("merging.dat");
+	char *tile_combos = resource_get_pointer(tile_combinations);
+	unsigned int tile_count = *((unsigned int *) tile_combos);
+
+	SMS_setNextTileatXY(2, 4);
+	printf("%d", *tile_combos);
 
 	SMS_displayOn();
 	

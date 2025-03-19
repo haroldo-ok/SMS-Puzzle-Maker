@@ -42,6 +42,7 @@
 			
 			const tileSetW = Math.ceil(smsTileSet.mapW / 2);
 			const tileSetH = Math.ceil(smsTileSet.mapH / 2);
+			const tileSetSize = tileSetW * tileSetH;
 			
 			const tileSet = [];
 			for (let tileSetRow = 0; tileSetRow < tileSetH; tileSetRow++) {
@@ -73,7 +74,7 @@
 						.reduce((acc, key, idx) => acc | ((attr[key] ? 1 : 0) << idx), 0);
 				});
 				
-			const combinations = tileSet.map(() => Array(tileSet.length).fill(0));
+			const combinations = Array(tileSetSize).fill(0).map(() => Array(tileSetSize).fill(0));
 			project.tileSet.combinations.forEach(({ sourceTile, destTile, resultTile }) => {
 				combinations[sourceTile - 1, destTile - 1] = resultTile;
 			});
@@ -85,7 +86,7 @@
 				tileSet: _.flatten(tileSet),
 				tileAttributes: _.flatten(tileAttributes.map(toBytePair)),
 				projectInfo: _.flatten(projectInfo),
-				combinations: _.flatten([toBytePair(tileSet.length), combinations]),
+				combinations: _.flatten([toBytePair(tileSetSize), combinations]),
 				maps
 			};
 		},
