@@ -76,7 +76,7 @@
 				
 			const combinations = Array(tileSetSize).fill(0).map(() => Array(tileSetSize).fill(0));
 			project.tileSet.combinations.forEach(({ sourceTile, destTile, resultTile }) => {
-				combinations[sourceTile - 1, destTile - 1] = resultTile;
+				combinations[sourceTile - 1][destTile - 1] = resultTile;
 			});
 				
 			const projectInfo = [project.tool.name, project.tool.version, project.projectInfo.name].map(stringToByteArray);
