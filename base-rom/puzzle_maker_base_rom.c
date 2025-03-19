@@ -195,7 +195,7 @@ char try_pushing_tile_on_map(resource_map_format *map, char x, char y, signed ch
 		set_map_tile(map, x, y, source_floor_tile ? source_floor_tile : 1);
 		set_map_tile(map, new_x, new_y, tile_combination);
 		
-		return 0;
+		return 1;
 	}
 	
 	unsigned int target_tile_attr = get_tile_attr(target_tile);	
@@ -394,20 +394,6 @@ char handle_title() {
 	SMS_setNextTileatXY(2, 21);
 	puts("Press any button to start");
 	
-	tile_combinations = resource_find("merging.dat");
-	char *tile_combos = resource_get_pointer(tile_combinations);
-	unsigned int tile_count = *((unsigned int *) tile_combos);
-
-	SMS_setNextTileatXY(2, 4);
-	printf("%d %d %d %d %d %d %d", 
-		tile_count,
-		get_tile_combination(6, 18),
-		get_tile_combination(18, 6),
-		tile_combos[2 + 18 + (6 * 32)],
-		tile_combos[2],
-		tile_combos[3],
-		tile_combos[4]);
-
 	SMS_displayOn();
 	
 	wait_button_press();
