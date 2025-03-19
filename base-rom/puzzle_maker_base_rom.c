@@ -399,7 +399,14 @@ char handle_title() {
 	unsigned int tile_count = *((unsigned int *) tile_combos);
 
 	SMS_setNextTileatXY(2, 4);
-	printf("%d", *tile_combos);
+	printf("%d %d %d %d %d %d %d", 
+		tile_count,
+		get_tile_combination(6, 18),
+		get_tile_combination(18, 6),
+		tile_combos[2 + 18 + (6 * 32)],
+		tile_combos[2],
+		tile_combos[3],
+		tile_combos[4]);
 
 	SMS_displayOn();
 	
