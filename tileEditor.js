@@ -673,6 +673,17 @@ var tinyMapEditor = (function() {
 
 			populateModalDialog(tileCombinationsDialog, 'Tile Combinations', table);
 		},
+		
+		showPlayerSpritePopup : function() {
+			const { h, newTr, newTd, newTh, newInput, newDataCheckbox, populateModalDialog } = DomUtil;
+			
+			populateModalDialog(playerSpriteDialog, 'Player Sprite',
+				h('label', {},
+					'Player sprite to load:',
+					newInput('file', { accept: 'image/*' })
+				)
+			);
+		},
 
 		prepareProjectInfoStructure : function() {
 			if (!projectInfo) projectInfo = {};
@@ -838,7 +849,7 @@ var tinyMapEditor = (function() {
 			
 			tileAttrsButton.addEventListener('click', () => _this.showTileAttrsPopup());			
 			tileCombinationsButton.addEventListener('click', () => _this.showTileCombinationsPopup());
-			playerSpriteButton.addEventListener('click', () => playerSpriteDialog.showModal());
+			playerSpriteButton.addEventListener('click', () => _this.showPlayerSpritePopup());
 			
 			/**
 			 * Map list events.
