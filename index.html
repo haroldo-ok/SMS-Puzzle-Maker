@@ -41,8 +41,8 @@
             <li id="options">
                 <label>Map Options</label>
                 <p><label>Tile zoom:</label><input type="text" value="1" maxlength="3" id="tileZoom" /><span>x</span></p>
-                <p><label>Map width:</label><input type="text" value="16" maxlength="3" id="width" disabled /><span>tiles</span></p>
-                <p><label>Map height:</label><input type="text" value="9" maxlength="3" id="height" disabled /><span>tiles</span></p>
+                <p class="hidden"><label>Map width:</label><input type="text" value="16" maxlength="3" id="width" disabled /><span>tiles</span></p>
+                <p class="hidden"><label>Map height:</label><input type="text" value="9" maxlength="3" id="height" disabled /><span>tiles</span></p>
             </li>
             <li id="tiles">
                 <label>Tiles</label>
@@ -55,6 +55,7 @@
 				
                 <p><input id="tileAttrsButton" type="button" value="Edit Tile Attributes" /></p>				
                 <p><input id="tileCombinationsButton" type="button" value="Edit Tile Combinations" /></p>				
+                <p><input id="playerSpriteButton" type="button" value="Edit Player Sprite" /></p>				
             </li>
             <li id="selected">
                 <label>Selected Tile</label>
@@ -86,6 +87,8 @@
 	<dialog id="tileCombinationChoiceDialog">
 	</dialog>
 	<dialog id="projectInfoDialog">
+	</dialog>
+	<dialog id="playerSpriteDialog">
 	</dialog>
 
 	<script src="RgbQuant-SMS.js/demo/js/underscore-min.js"></script>
