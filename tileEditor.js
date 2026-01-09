@@ -677,10 +677,27 @@ var tinyMapEditor = (function() {
 		showPlayerSpritePopup : function() {
 			const { h, newTr, newTd, newTh, newInput, newDataCheckbox, populateModalDialog } = DomUtil;
 			
-			populateModalDialog(playerSpriteDialog, 'Player Sprite',
+			const spriteImg = h('img', { src: './assets/tilemap_16a.png' });
+			const spriteInput = newInput('file', { 
+				accept: 'image/*',
+				'@change': () => {
+					if (!spriteInput.files.length) return;
+
+					const file = spriteInput.files[0];
+						 
+					const fr = new FileReader();
+						fr.onload = function () {
+						spriteImg.src = fr.result;
+					}
+					fr.readAsDataURL(file);
+				}
+			});
+			
+			populateModalDialog(playerSpriteDialog, 'Player Sprite',			
+				spriteImg,
 				h('label', {},
 					'Player sprite to load:',
-					newInput('file', { accept: 'image/*' })
+					spriteInput
 				)
 			);
 		},
