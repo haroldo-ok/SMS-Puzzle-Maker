@@ -677,7 +677,35 @@ var tinyMapEditor = (function() {
 		showPlayerSpritePopup : function() {
 			const { h, newTr, newTd, newTh, newInput, newDataCheckbox, populateModalDialog } = DomUtil;
 			
-			const spriteImg = h('img', { src: './assets/tilemap_16a.png' });
+			const spriteCanvas = h('canvas', { 'class': 'zoomable' });
+
+			const spriteImg = h('img', {
+				'@load': () => {
+					spriteCanvas.width = spriteImg.width;
+					spriteCanvas.height = spriteImg.height;
+					spriteCanvas.style.zoom = tileZoom;
+					
+					const ctx = spriteCanvas.getContext('2d');
+					ctx.drawImage(spriteImg, 0, 0);
+				}
+			});
+            sprite.addEventListener('load', function() {
+                pal.canvas.width = this.width;
+                pal.canvas.height = this.height;
+				pal.canvas.style.zoom = tileZoom;
+                pal.drawImage(this, 0, 0);
+				tileSetForSms = _this.convertToUnoptimizedTileMap(pal.canvas, { colors: 16 });
+				
+				storage.put('tileSet', {					
+					name: tileSetName,
+					src: sprite.src,
+					forMasterSystem: tileSetForSms
+				});
+
+				_this.loadMap();
+            }, false);
+			
+			
 			const spriteInput = newInput('file', { 
 				accept: 'image/*',
 				'@change': () => {
@@ -694,6 +722,7 @@ var tinyMapEditor = (function() {
 			});
 			
 			populateModalDialog(playerSpriteDialog, 'Player Sprite',			
+				spriteCanvas,
 				spriteImg,
 				h('label', {},
 					'Player sprite to load:',
