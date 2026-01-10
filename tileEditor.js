@@ -691,6 +691,7 @@ var tinyMapEditor = (function() {
 					const sourceSpriteHeight = Math.floor(img.height / SPRITE_DIRECTION_COUNT);
 					
 					const ctx = spriteCanvas.getContext('2d');
+					ctx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
 					for (let directionNumber = 0, sy = 0, dy = SPRITE_HEIGHT - sourceSpriteHeight; 
 						directionNumber < SPRITE_DIRECTION_COUNT;
 						directionNumber++, sy += sourceSpriteHeight, dy += SPRITE_HEIGHT) {
