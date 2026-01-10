@@ -675,23 +675,34 @@ var tinyMapEditor = (function() {
 		},
 		
 		showPlayerSpritePopup : function() {
-			const { h, newTr, newTd, newTh, newImageFileInput, newDataCheckbox, populateModalDialog } = DomUtil;
+			const { h, newTr, newTd, newTh, newDiv, newImageFileInput, newDataCheckbox, populateModalDialog } = DomUtil;
 			
 			const spriteCanvas = h('canvas', { 'class': 'zoomable' });
 
 			const spriteInput = newImageFileInput({
 				'@loadimage': ({ file, img }) => {
-					spriteCanvas.width = img.width;
-					spriteCanvas.height = img.height;
+					const SPRITE_DIRECTION_COUNT = 4;
+					const SPRITE_HEIGHT = 32;
+					
+					spriteCanvas.width = Math.floor(img.width / 16) * 16;
+					spriteCanvas.height = SPRITE_DIRECTION_COUNT * SPRITE_HEIGHT;
 					spriteCanvas.style.zoom = tileZoom;
 					
+					const sourceSpriteHeight = Math.floor(img.height / SPRITE_DIRECTION_COUNT);
+					
 					const ctx = spriteCanvas.getContext('2d');
-					ctx.drawImage(img, 0, 0);
+					for (let directionNumber = 0, sy = 0, dy = SPRITE_HEIGHT - sourceSpriteHeight; 
+						directionNumber < SPRITE_DIRECTION_COUNT;
+						directionNumber++, sy += sourceSpriteHeight, dy += SPRITE_HEIGHT) {
+						ctx.drawImage(img,
+							0, sy, img.width, sourceSpriteHeight, 
+							0, dy, img.width, sourceSpriteHeight);
+					}
 				}
 			});
 			
 			populateModalDialog(playerSpriteDialog, 'Player Sprite',			
-				spriteCanvas,
+				newDiv(spriteCanvas),
 				h('label', {},
 					'Player sprite to load:',
 					spriteInput
