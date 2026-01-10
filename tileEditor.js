@@ -689,22 +689,6 @@ var tinyMapEditor = (function() {
 					ctx.drawImage(spriteImg, 0, 0);
 				}
 			});
-            sprite.addEventListener('load', function() {
-                pal.canvas.width = this.width;
-                pal.canvas.height = this.height;
-				pal.canvas.style.zoom = tileZoom;
-                pal.drawImage(this, 0, 0);
-				tileSetForSms = _this.convertToUnoptimizedTileMap(pal.canvas, { colors: 16 });
-				
-				storage.put('tileSet', {					
-					name: tileSetName,
-					src: sprite.src,
-					forMasterSystem: tileSetForSms
-				});
-
-				_this.loadMap();
-            }, false);
-			
 			
 			const spriteInput = newInput('file', { 
 				accept: 'image/*',
