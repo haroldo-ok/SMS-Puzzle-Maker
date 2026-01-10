@@ -675,39 +675,23 @@ var tinyMapEditor = (function() {
 		},
 		
 		showPlayerSpritePopup : function() {
-			const { h, newTr, newTd, newTh, newInput, newDataCheckbox, populateModalDialog } = DomUtil;
+			const { h, newTr, newTd, newTh, newImageFileInput, newDataCheckbox, populateModalDialog } = DomUtil;
 			
 			const spriteCanvas = h('canvas', { 'class': 'zoomable' });
 
-			const spriteImg = h('img', {
-				'@load': () => {
-					spriteCanvas.width = spriteImg.width;
-					spriteCanvas.height = spriteImg.height;
+			const spriteInput = newImageFileInput({
+				'@loadimage': ({ file, img }) => {
+					spriteCanvas.width = img.width;
+					spriteCanvas.height = img.height;
 					spriteCanvas.style.zoom = tileZoom;
 					
 					const ctx = spriteCanvas.getContext('2d');
-					ctx.drawImage(spriteImg, 0, 0);
-				}
-			});
-			
-			const spriteInput = newInput('file', { 
-				accept: 'image/*',
-				'@change': () => {
-					if (!spriteInput.files.length) return;
-
-					const file = spriteInput.files[0];
-						 
-					const fr = new FileReader();
-						fr.onload = function () {
-						spriteImg.src = fr.result;
-					}
-					fr.readAsDataURL(file);
+					ctx.drawImage(img, 0, 0);
 				}
 			});
 			
 			populateModalDialog(playerSpriteDialog, 'Player Sprite',			
 				spriteCanvas,
-				spriteImg,
 				h('label', {},
 					'Player sprite to load:',
 					spriteInput

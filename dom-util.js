@@ -48,7 +48,7 @@
 		
 		const handleImageLoad = e => {
 			const target = getEventTarget(e);
-			attributes['@imageload'] && attributes['@imageload']({ event: e, target, img, file });
+			attributes['@loadimage'] && attributes['@loadimage']({ event: e, target, img, file });
 		}
 		
 		const handleFileChange = () => {
