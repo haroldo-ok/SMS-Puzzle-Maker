@@ -19,6 +19,7 @@ var tinyMapEditor = (function() {
         sprite = new Image(),
 		tileSetForSms,
 		tileSetName,
+		playerSpriteForSms,
 		mapName,
 		mapId,
         tiles,
@@ -699,6 +700,14 @@ var tinyMapEditor = (function() {
 							0, sy, img.width, sourceSpriteHeight, 
 							0, dy, img.width, sourceSpriteHeight);
 					}
+
+					// playerSpriteForSms = _this.convertToUnoptimizedTileMap(spriteCanvas, { colors: 8 });
+					
+					storage.put('playerSprite', {					
+						name: file.name,
+						src: img.src,
+						// forMasterSystem: playerSpriteForSms
+					});
 				}
 			});
 			
