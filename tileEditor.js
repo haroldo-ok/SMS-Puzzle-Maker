@@ -701,12 +701,12 @@ var tinyMapEditor = (function() {
 							0, dy, img.width, sourceSpriteHeight);
 					}
 
-					// playerSpriteForSms = _this.convertToUnoptimizedTileMap(spriteCanvas, { colors: 8 });
+					playerSpriteForSms = this.convertToUnoptimizedTileMap(spriteCanvas, { colors: 8 });
 					
 					storage.put('playerSprite', {					
 						name: file.name,
 						src: img.src,
-						// forMasterSystem: playerSpriteForSms
+						forMasterSystem: playerSpriteForSms
 					});
 				}
 			});
