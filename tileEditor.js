@@ -674,7 +674,12 @@ var tinyMapEditor = (function() {
 
 			populateModalDialog(tileCombinationsDialog, 'Tile Combinations', table);
 		},
-		
+
+        loadPlayerSprite : function() {
+			playerSprite = storage.get('playerSprite');
+			console.log('playerSprite', playerSprite);
+        },
+				
 		showPlayerSpritePopup : function() {
 			const { h, newTr, newTd, newTh, newDiv, newImageFileInput, newDataCheckbox, populateModalDialog } = DomUtil;
 			
@@ -1019,6 +1024,7 @@ var tinyMapEditor = (function() {
 			this.loadTileAttrs();
 			this.loadProjectInfo();
 			this.loadTileCombinations();
+			this.loadPlayerSprite();
 			
 			let storedSrc = storedTileSet && storedTileSet.src || 'assets/default_tilemap.png';
 			if (storedSrc.startsWith('http:') || storedSrc.startsWith('https:')) {
