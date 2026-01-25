@@ -716,10 +716,17 @@ var tinyMapEditor = (function() {
 				
 				storage.put('playerSprite', playerSprite);
 			};
+
+			const loadCurrentSprite = () => {
+				if (!playerSprite || !playerSprite.src) return;
+				
+				const img = new Image();
+				img.onload = () => drawPlayerSpriteFromImage(img);
+			}
 			
 			const spriteInput = newImageFileInput({
 				'@loadimage': ({ file, img }) => handlePlayerSpriteLoad(file.name, img)
-			});
+			});			
 			
 			populateModalDialog(playerSpriteDialog, 'Player Sprite',			
 				newDiv(spriteCanvas),
@@ -728,6 +735,8 @@ var tinyMapEditor = (function() {
 					spriteInput
 				)
 			);
+
+			loadCurrentSprite();
 		},
 
 		prepareProjectInfoStructure : function() {
