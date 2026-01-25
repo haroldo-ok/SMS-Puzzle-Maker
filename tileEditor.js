@@ -683,13 +683,14 @@ var tinyMapEditor = (function() {
 		showPlayerSpritePopup : function() {
 			const { h, newTr, newTd, newTh, newDiv, newImageFileInput, newDataCheckbox, populateModalDialog } = DomUtil;
 			
+			const SPRITE_DIRECTION_COUNT = 4;
+			const SPRITE_WIDTH = 16;
+			const SPRITE_HEIGHT = 32;
+
 			const spriteCanvas = h('canvas', { 'class': 'zoomable' });
 			
 			const drawPlayerSpriteFromImage = (img) => {
-				const SPRITE_DIRECTION_COUNT = 4;
-				const SPRITE_HEIGHT = 32;
-
-				spriteCanvas.width = Math.floor(img.width / 16) * 16;
+				spriteCanvas.width = Math.floor(img.width / SPRITE_WIDTH) * SPRITE_WIDTH;
 				spriteCanvas.height = SPRITE_DIRECTION_COUNT * SPRITE_HEIGHT;
 				spriteCanvas.style.zoom = tileZoom;
 
@@ -711,6 +712,10 @@ var tinyMapEditor = (function() {
 				playerSprite = {					
 					name: fileName,
 					src: img.src,
+					animations: {
+						frameCount: Math.floor(spriteCanvas.width / SPRITE_WIDTH),
+						directionCount:	SPRITE_DIRECTION_COUNT,
+					},
 					forMasterSystem
 				};
 				
