@@ -42,6 +42,37 @@
 	const newInput = (type, attributes) => h('input', { type, ...attributes });
 	const newCheckbox = attributes => newInput('checkbox', { ...attributes });
 	const newButton = (text, attributes) => h('button', { ...attributes }, text);
+	
+	const newImageFileInput = (attributes = {}) => {
+		let img, fileInput, file;
+		
+		const handleImageLoad = e => {
+			const target = getEventTarget(e);
+			attributes['@loadimage'] && attributes['@loadimage']({ event: e, target, img, file });
+		}
+		
+		const handleFileChange = () => {
+			if (!fileInput.files.length) return;
+
+			file = fileInput.files[0];
+				 
+			const fr = new FileReader();
+			fr.onload = function () {
+				img.src = fr.result;
+			}
+			fr.readAsDataURL(file);
+		}
+
+		img = h('img', { '@load': handleImageLoad });
+
+		fileInput = newInput('file', { 
+			accept: 'image/*',
+			'@change': handleFileChange,
+			...attributes
+		});
+		
+		return fileInput;
+	}
 
 	const newDataInput = (object, attrName, type, attributes = {}) => {
 		const handleChange = e => {
@@ -95,6 +126,7 @@
 		newDiv, newLabel,
 		newInput, newCheckbox, newButton,
 		newDataInput, newDataCheckbox,
+		newImageFileInput,
 		populateModalDialog
 	};
 })();

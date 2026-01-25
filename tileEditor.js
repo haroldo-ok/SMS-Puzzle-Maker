@@ -19,6 +19,7 @@ var tinyMapEditor = (function() {
         sprite = new Image(),
 		tileSetForSms,
 		tileSetName,
+		playerSprite,
 		mapName,
 		mapId,
         tiles,
@@ -673,16 +674,75 @@ var tinyMapEditor = (function() {
 
 			populateModalDialog(tileCombinationsDialog, 'Tile Combinations', table);
 		},
-		
+
+        loadPlayerSprite : function() {
+			playerSprite = storage.get('playerSprite');
+			console.log('playerSprite', playerSprite);
+        },
+				
 		showPlayerSpritePopup : function() {
-			const { h, newTr, newTd, newTh, newInput, newDataCheckbox, populateModalDialog } = DomUtil;
+			const { h, newTr, newTd, newTh, newDiv, newImageFileInput, newDataCheckbox, populateModalDialog } = DomUtil;
 			
-			populateModalDialog(playerSpriteDialog, 'Player Sprite',
+			const SPRITE_DIRECTION_COUNT = 4;
+			const SPRITE_WIDTH = 16;
+			const SPRITE_HEIGHT = 32;
+
+			const spriteCanvas = h('canvas', { 'class': 'zoomable' });
+			
+			const drawPlayerSpriteFromImage = (img) => {
+				spriteCanvas.width = Math.floor(img.width / SPRITE_WIDTH) * SPRITE_WIDTH;
+				spriteCanvas.height = SPRITE_DIRECTION_COUNT * SPRITE_HEIGHT;
+				spriteCanvas.style.zoom = tileZoom;
+
+				const sourceSpriteHeight = Math.floor(img.height / SPRITE_DIRECTION_COUNT);
+
+				const ctx = spriteCanvas.getContext('2d');
+				ctx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+				for (let directionNumber = 0, sy = 0, dy = SPRITE_HEIGHT - sourceSpriteHeight; directionNumber < SPRITE_DIRECTION_COUNT; directionNumber++, sy += sourceSpriteHeight, dy += SPRITE_HEIGHT) {
+					ctx.drawImage(img,
+						0, sy, img.width, sourceSpriteHeight,
+						0, dy, img.width, sourceSpriteHeight);
+				}
+			}
+
+			const handlePlayerSpriteLoad = (fileName, img) => {
+				drawPlayerSpriteFromImage(img);
+
+				const forMasterSystem = this.convertToUnoptimizedTileMap(spriteCanvas, { colors: 8 });
+				playerSprite = {					
+					name: fileName,
+					src: img.src,
+					animations: {
+						frameCount: Math.floor(spriteCanvas.width / SPRITE_WIDTH),
+						directionCount:	SPRITE_DIRECTION_COUNT,
+					},
+					forMasterSystem
+				};
+				
+				storage.put('playerSprite', playerSprite);
+			};
+
+			const loadCurrentSprite = () => {
+				if (!playerSprite || !playerSprite.src) return;
+
+				const img = new Image();
+				img.onload = () => drawPlayerSpriteFromImage(img);
+				img.src = playerSprite.src;
+			}
+			
+			const spriteInput = newImageFileInput({
+				'@loadimage': ({ file, img }) => handlePlayerSpriteLoad(file.name, img)
+			});			
+			
+			populateModalDialog(playerSpriteDialog, 'Player Sprite',			
+				newDiv(spriteCanvas),
 				h('label', {},
 					'Player sprite to load:',
-					newInput('file', { accept: 'image/*' })
+					spriteInput
 				)
 			);
+
+			loadCurrentSprite();
 		},
 
 		prepareProjectInfoStructure : function() {
@@ -742,7 +802,8 @@ var tinyMapEditor = (function() {
 					attributes: tileAttrs,
 					combinations: this.getTileCombinationsObject(),
 					forMasterSystem: tileSetForSms
-				}
+				},
+				playerSprite
 			};
 		},
 		
@@ -786,6 +847,11 @@ var tinyMapEditor = (function() {
 			projectInfo = project.projectInfo;
 			this.prepareProjectInfoStructure();
 			this.saveProjectInfo();
+			
+			if (project.playerSprite) {
+				playerSprite = project.playerSprite;
+				storage.put('playerSprite', playerSprite);
+			}
 
 			this.destroy();
 			this.init();
@@ -981,6 +1047,7 @@ var tinyMapEditor = (function() {
 			this.loadTileAttrs();
 			this.loadProjectInfo();
 			this.loadTileCombinations();
+			this.loadPlayerSprite();
 			
 			let storedSrc = storedTileSet && storedTileSet.src || 'assets/default_tilemap.png';
 			if (storedSrc.startsWith('http:') || storedSrc.startsWith('https:')) {
