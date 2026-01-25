@@ -797,7 +797,8 @@ var tinyMapEditor = (function() {
 					attributes: tileAttrs,
 					combinations: this.getTileCombinationsObject(),
 					forMasterSystem: tileSetForSms
-				}
+				},
+				playerSprite
 			};
 		},
 		
@@ -841,6 +842,11 @@ var tinyMapEditor = (function() {
 			projectInfo = project.projectInfo;
 			this.prepareProjectInfoStructure();
 			this.saveProjectInfo();
+			
+			if (project.playerSprite) {
+				playerSprite = project.playerSprite;
+				storage.put('playerSprite', playerSprite);
+			}
 
 			this.destroy();
 			this.init();
