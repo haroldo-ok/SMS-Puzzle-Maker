@@ -719,9 +719,10 @@ var tinyMapEditor = (function() {
 
 			const loadCurrentSprite = () => {
 				if (!playerSprite || !playerSprite.src) return;
-				
+
 				const img = new Image();
 				img.onload = () => drawPlayerSpriteFromImage(img);
+				img.src = playerSprite.src;
 			}
 			
 			const spriteInput = newImageFileInput({
