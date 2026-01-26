@@ -10,16 +10,19 @@
 	const stringToPaddedByteArray = (s, len) => padArrayEnd(s.split('').map(ch => ch.charCodeAt(0)), len, 0);
 	const toBytePair = n => [n & 0xFF, (n >> 8) & 0xFF];
 
+	const to2bpp = c => c >> 6;
+	const convertSmsPalette = (smsPalette) => smsPalette
+			.map(channels => channels.map(to2bpp))
+			.map(([r, g, b]) => r | g << 2 | b << 4);
+
 	const that = {
 		
 		generateObj: (project) => {
-			const to2bpp = c => c >> 6;
 			
 			const smsTileSet = project.tileSet.forMasterSystem;
 			
-			const palette = smsTileSet.palettes[0]
-				.map(channels => channels.map(to2bpp))
-				.map(([r, g, b]) => r | g << 2 | b << 4);
+			const smsPalette = smsTileSet.palettes[0];
+			const palette = convertSmsPalette(smsPalette);
 				
 			const processTileLine = line => line.reduce((bitPlanes, pixel, colNum) => {
 				const colMask = 0x80 >> colNum;
@@ -89,6 +92,7 @@
 				combinations: _.flatten([toBytePair(tileSetSize), combinations]),
 				maps
 			};
+
 		},
 		
 		generateInternalFiles: (project) => {
