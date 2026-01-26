@@ -15,6 +15,29 @@
 			.map(channels => channels.map(to2bpp))
 			.map(([r, g, b]) => r | g << 2 | b << 4);
 
+	const processTileAt = (smsTileSet, col, row) => {
+		const processTileLine = line => line.reduce((bitPlanes, pixel, colNum) => {
+			const colMask = 0x80 >> colNum;
+			return bitPlanes.map((plane, planeIdx) => {
+				const planeMask = 0x01 << planeIdx;
+				const finalMask = pixel & planeMask ? colMask : 0;
+				return plane | finalMask;
+			});
+		}, [0, 0, 0, 0]);
+			
+		const processTile = tile => tile.map(processTileLine);
+		const processTileAt = (col, row) => {
+			if (col >= smsTileSet.mapW || row >= smsTileSet.mapH) {
+				return 0;
+			}
+			
+			const tileIndex = (row * smsTileSet.mapW + col) || 0;
+			return processTile(smsTileSet.tiles[tileIndex].pixels);
+		};
+
+		return processTileAt(col, row);
+	}
+
 	const that = {
 		
 		generateObj: (project) => {
@@ -23,26 +46,7 @@
 			
 			const smsPalette = smsTileSet.palettes[0];
 			const palette = convertSmsPalette(smsPalette);
-				
-			const processTileLine = line => line.reduce((bitPlanes, pixel, colNum) => {
-				const colMask = 0x80 >> colNum;
-				return bitPlanes.map((plane, planeIdx) => {
-					const planeMask = 0x01 << planeIdx;
-					const finalMask = pixel & planeMask ? colMask : 0;
-					return plane | finalMask;
-				});
-			}, [0, 0, 0, 0]);
-				
-			const processTile = tile => tile.map(processTileLine);
-			const processTileAt = (col, row) => {
-				if (col >= smsTileSet.mapW || row >= smsTileSet.mapH) {
-					return 0;
-				}
-				
-				const tileIndex = (row * smsTileSet.mapW + col) || 0;
-				return processTile(smsTileSet.tiles[tileIndex].pixels);
-			};
-			
+							
 			const tileSetW = Math.ceil(smsTileSet.mapW / 2);
 			const tileSetH = Math.ceil(smsTileSet.mapH / 2);
 			const tileSetSize = tileSetW * tileSetH;
@@ -53,10 +57,10 @@
 					const tileRow = tileSetRow * 2;
 					const tileCol = tileSetCol * 2;
 					
-					tileSet.push(processTileAt(tileCol, tileRow));
-					tileSet.push(processTileAt(tileCol, tileRow + 1));
-					tileSet.push(processTileAt(tileCol + 1, tileRow));
-					tileSet.push(processTileAt(tileCol + 1, tileRow + 1));
+					tileSet.push(processTileAt(smsTileSet,tileCol, tileRow));
+					tileSet.push(processTileAt(smsTileSet, tileCol, tileRow + 1));
+					tileSet.push(processTileAt(smsTileSet, tileCol + 1, tileRow));
+					tileSet.push(processTileAt(smsTileSet, tileCol + 1, tileRow + 1));
 				}
 			}
 			
