@@ -677,7 +677,6 @@ var tinyMapEditor = (function() {
 
         loadPlayerSprite : function() {
 			playerSprite = storage.get('playerSprite');
-			console.log('playerSprite', playerSprite);
         },
 				
 		showPlayerSpritePopup : function() {
